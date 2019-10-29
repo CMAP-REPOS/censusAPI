@@ -18,8 +18,8 @@ require([
   app = {
     map: null,
     basemap: "dark-gray",
-    center: [-40, 40], // lon, lat
-    zoom: 3,
+    center: [-87.9298, 41.8781], // lon, lat
+    zoom: 9,
     initialExtent: null,
     searchWidgetNav: null,
     searchWidgetPanel: null

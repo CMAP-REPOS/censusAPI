@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,73 +14,118 @@
   <link rel="stylesheet" href="dist/css/calcite-maps-bootstrap.min-v0.10.css">
 
   <!-- Calcite Maps -->
-  <link rel="stylesheet" href="dist/css/calcite-maps-arcgis-3.x.min-v0.10.css"-->
+  <link rel="stylesheet" href="dist/css/calcite-maps-arcgis-3.x.min-v0.10.css" -->
 
   <!-- ArcGIS JS 3.x -->
-  <link rel="stylesheet" href="https://js.arcgis.com/3.27/esri/themes/calcite/dijit/calcite.css">
+  <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
   <link rel="stylesheet" href="https://js.arcgis.com/3.27/esri/themes/calcite/esri/esri.css">
 
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
     }
+
+    #mapViewDiv {
+      padding: 0;
+      height: 960px;
+    }
+
+    .panel-text{
+      font-size: 15px;
+    }
   </style>
 </head>
 
-<body class="calcite calcite-maps calcite-nav-top calcite-margin-all calcite-zoom-top-left calcite-layout-inline-left">
+<!-- <body class="calcite calcite-maps calcite-nav-top calcite-margin-all calcite-zoom-top-left calcite-layout-inline-left"> -->
 
+<body>
   <!-- Navbar -->
-
-  <nav class="navbar calcite-navbar navbar-fixed-top calcite-text-light calcite-bg-dark calcite-bgcolor-dark-purple">
-    <!-- Menu -->
-    <div class="dropdown calcite-dropdown calcite-bg-light calcite-text-dark" role="presentation">
-      <a class="dropdown-toggle" role="menubutton" aria-haspopup="true" aria-expanded="false" tabindex="0">
-        <div class="calcite-dropdown-toggle">
-          <span class="sr-only">Toggle dropdown menu</span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
+  <header class="top-nav fade-in">
+    <div class="grid-container">
+      <div class="column-24">
+        <!-- desktop sized navigation -->
+        <div class="tablet-hide">
+          <!-- logo / home -->
+          <a href="#" class="top-nav-title">CMAP Census Data API Test</a>
+          <!-- primary navigation sections -->
+          <nav class="top-nav-list" role="navigation" aria-labelledby="topnav">
+            <a class="top-nav-link" href="#">Github</a>
+            <a class="top-nav-link" href="#">Census Reference</a>
+          </nav>
+          <!-- user specific dropdowns -->
         </div>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-info-sign"></span> Info</a></li>
-        <li><a class="visible-xs" role="button" data-target="#panelSearch" aria-haspopup="true"><span class="glyphicon glyphicon-search"></span> Search</a></li>
-        <li><a role="menuitem" tabindex="0" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
-        <li><a role="menuitem" tabindex="0" id="calciteToggleNavbar" aria-haspopup="true"><span class="glyphicon glyphicon-fullscreen"></span> Full Map</a></li>
-      </ul>
-    </div>
-    <!-- Title -->
-    <div class="calcite-title calcite-overflow-hidden">
-      <span class="calcite-title-main">Calcite Maps</span>
-      <span class="calcite-title-divider hidden-xs"></span>
-      <span class="calcite-title-sub hidden-xs">Starter app for the ArcGIS API for JS 3.x (dojo)</span>
-    </div>
-     <!-- Nav -->
-    <ul class="calcite-nav nav navbar-nav">
-      <li><div class="calcite-navbar-search hidden-xs"><div id="searchNavDiv"></div></div></li>
-    </ul>
+        <!-- tablet and mobile sized navigation -->
+        <div class="tablet-show top-nav-flex">
+          <!-- open primary navigation drawer -->
+          <nav class="top-nav-flex-list" role="navigation" aria-labelledby="topnav">
+            <a href="/" class="icon-ui-menu top-nav-link js-drawer-toggle" data-drawer="top-nav"><span class="phone-hide">Menu</span></a>
+          </nav>
+          <!-- logo / home -->
+          <header class="top-nav-flex-title">
+            <a href="/" class="top-nav-link">ArcGIS <span class="phone-hide">for Developers</span></a>
+          </header>
+          <!-- user specific actions -->
+          <nav class="top-nav-flex-list text-right" role="navigation" aria-labelledby="usernav">
+            <a class="top-nav-link icon-ui-search js-drawer-toggle" href="#" aria-label="Search"><span class="phone-hide">Search</span></a>
+            <a class="top-nav-link icon-ui-user margin-left-1 js-drawer-toggle" href="#" aria-label="Sign In"><span class="phone-hide">Sign In</span></a>
+          </nav>
+        </div>
+      </div>
 
-  </nav><!--/.navbar -->
+    </div>
+  </header>
 
   <!-- Map Container  -->
+  <div class="grid-container ">
+    <div class="column-8">
+      <div class="panel modifier-class">
+        <h4 class="trailer-half panel-text">Description</h4>
+        <p class="trailer-0">This is a test to access census data from the census api.</p>
+        <br />
+        <!--Geography Selection -->
+        <div class="dropdown js-dropdown">
+          <!-- extends side-nav -->
+          <button class="btn btn-fill dropdown-btn js-dropdown-toggle panel-text">
+            Select Census Geography
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" class="svg-icon">
+              <path d="M28 9v5L16 26 4 14V9l12 12L28 9z" /></svg>
+          </button>
+          <!-- extends side-nav -->
+          <select class="dropdown-menu modifier-class" role="menu">
+            <!-- extends side-nav-link -->
+            <span class="dropdown-title">Tiger Line </span>
+            <a href="#" class="dropdown-link" role="menuitem">County</a>
+            <a href="#" class="dropdown-link" role="menuitem">Municipality</a>
+            <a href="#" class="dropdown-link" role="menuitem">Tract</a>
+            <a href="#" class="dropdown-link" role="menuitem">Block Group</a>
+          </select>
+        </div>
 
-  <div class="calcite-map">
-    <div id="mapViewDiv" class="calcite-map-absolute"></div>
-  </div><!-- /.container -->
+      </div>
+    </div>
+    <div class="column-16">
+      <span>
+        <div id="mapViewDiv" class="calcite-map-absolute"></div>
+      </span>
+    </div>
+  </div>
+  <!-- /.container -->
 
   <!-- Panel -->
 
   <div class="calcite-panels calcite-panels-right calcite-bg-light calcite-text-dark panel-group" role="tablist" aria-multiselectable="true">
 
-    <!-- Info Panel -->
+    <!-- Info Panel
+    Update with app description-->
 
     <div id="panelInfo" class="panel collapse">
       <div id="headingInfo" class="panel-heading" role="tab">
         <div class="panel-title">
-          <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo"  aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="panel-label">Info</span></a>
+          <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo" aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span
+              class="panel-label">Info</span></a>
           <a class="panel-close" role="button" data-toggle="collapse" tabindex="0" href="#panelInfo"><span class="esri-icon esri-icon-close" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -105,7 +151,8 @@
     <div id="panelSearch" class="panel collapse hidden-sm hidden-md hidden-lg">
       <div id="headingSearch" class="panel-heading" role="tab">
         <div class="panel-title">
-          <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseSearch"  aria-expanded="false" aria-controls="collapseSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="panel-label">Search</span></a>
+          <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseSearch" aria-expanded="false" aria-controls="collapseSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span
+              class="panel-label">Search</span></a>
           <a class="panel-close" role="button" data-toggle="collapse" tabindex="0" href="#panelSearch"><span class="esri-icon esri-icon-close" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -121,7 +168,8 @@
     <div id="panelBasemaps" class="panel collapse">
       <div id="headingBasemaps" class="panel-heading" role="tab">
         <div class="panel-title">
-          <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseBasemaps" aria-expanded="false"   aria-controls="collapseBasemaps"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span><span class="panel-label">Basemaps</span></a>
+          <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseBasemaps" aria-expanded="false" aria-controls="collapseBasemaps"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span><span
+              class="panel-label">Basemaps</span></a>
           <a class="panel-close" role="button" data-toggle="collapse" tabindex="0" href="#panelBasemaps"><span class="esri-icon esri-icon-close" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -145,9 +193,9 @@
 
   </div> <!-- /.calcite-panels -->
 
-    <script type="text/javascript">
-      var dojoConfig = {
-        packages: [{
+  <script type="text/javascript">
+    var dojoConfig = {
+      packages: [{
           name: "bootstrap",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo-bootstrap"
           location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/vendor/dojo-bootstrap"
@@ -156,12 +204,14 @@
           name: "calcite-maps",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo"
           location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/js/dojo"
-        }]
-      };
-    </script>
-
-    <!-- ArcGIS JS 3.x -->
-    <script src="https://js.arcgis.com/3.30/"></script>
-    <script src="js/main.js"></script>
+        }
+      ]
+    };
+  </script>
+  <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
+  <!-- ArcGIS JS 3.x -->
+  <script src="https://js.arcgis.com/3.30/"></script>
+  <script src="js/main.js"></script>
 </body>
+
 </html>
