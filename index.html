@@ -150,77 +150,18 @@
         packages: [{
           name: "bootstrap",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo-bootstrap"
-          location: "/dist/vendor/dojo-bootstrap"
+          location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/vendor/dojo-bootstrap"
         },
         {
           name: "calcite-maps",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo"
-          location: "/dist/js/dojo"
+          location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/js/dojo"
         }]
       };
     </script>
 
     <!-- ArcGIS JS 3.x -->
     <script src="https://js.arcgis.com/3.30/"></script>
-
-    <script>
-        var app;
-        require([
-          // ArcGIS
-          "esri/map",
-          "esri/dijit/Search",
-          "dojo/query",
-          // Calcite Maps
-          "calcite-maps/calcitemaps-v0.10",
-
-          // Bootstrap
-          "bootstrap/Collapse",
-          "bootstrap/Dropdown",
-          "bootstrap/Tab",
-          "dojo/domReady!"
-        ], function(Map, Search, query, CalciteMaps) {
-
-          // App
-          app = {
-            map: null,
-            basemap: "dark-gray",
-            center: [-40, 40], // lon, lat
-            zoom: 3,
-            initialExtent: null,
-            searchWidgetNav: null,
-            searchWidgetPanel: null
-          }
-          // Map
-          app.map = new Map("mapViewDiv", {
-            basemap: app.basemap,
-            center: app.center,
-            zoom: app.zoom
-          });
-          app.map.on("load", function(){
-            app.initialExtent = app.map.extent;
-          })
-
-          // Search
-          app.searchDivNav = createSearchWidget("searchNavDiv");
-          app.searchWidgetPanel = createSearchWidget("searchPanelDiv");
-          function createSearchWidget(parentId) {
-            var search = new Search({
-              map: app.map,
-              enableHighlight: false
-              }, parentId);
-            search.startup();
-            return search;
-          }
-          // Basemaps
-          query("#selectBasemapPanel").on("change", function(e){
-            app.map.setBasemap(e.target.options[e.target.selectedIndex].value);
-          });
-          // Home
-          query(".calcite-navbar .navbar-brand").on("click", function(e) {
-            app.map.setExtent(app.initialExtent);
-          })
-        });
-    </script>
-
+    <script src="js/main.js"></script>
 </body>
 </html>
