@@ -45,6 +45,7 @@ require([
   "esri/layers/FeatureLayer",
   "esri/dijit/Search",
   "esri/graphic",
+  "esri/layers/GeoJSONLayer",
   "dojo/query",
   // Calcite Maps
   "calcite-maps/calcitemaps-v0.10",
@@ -57,7 +58,7 @@ require([
   //dojo
   "dojo/_base/array",
   "dojo/domReady!",
-], function(Map, FeatureLayer, Search, Graphic, query, CalciteMaps, arr) {
+], function(Map, FeatureLayer, Search, Graphic,GeoJSONLayer, query, CalciteMaps, arr) {
 
 
 
@@ -65,22 +66,23 @@ require([
   app = {
     map: null,
     basemap: "dark-gray",
-    center: L.latLng(41.8781, -87.9298), // lon, lat
+  //  center: L.latLng(41.8781, -87.9298), // lon, lat
+    center: [-87.9298,41.8781], // lon, lat
     zoom: 9,
     initialExtent: null,
     searchWidgetNav: null,
     searchWidgetPanel: null
   }
-  // // Map
-  // app.map = new Map("mapViewDiv", {
-  //   basemap: app.basemap,
-  //   center: app.center,
-  //   zoom: app.zoom
-  // });
+  // Map
+  app.map = new Map("mapViewDiv", {
+    basemap: app.basemap,
+    center: app.center,
+    zoom: app.zoom
+  });
 
-  app.map = L.map("mapViewDiv").setView(app.center, 9);
-
-  L.esri.basemapLayer('Streets').addTo(app.map);
+  // app.map = L.map("mapViewDiv").setView(app.center, 9);
+  //
+  // L.esri.basemapLayer('Streets').addTo(app.map);
 
   app.map.on("load", function() {
     app.initialExtent = app.map.extent;
@@ -203,9 +205,16 @@ require([
         }
       }
 
-      L.geoJson(response, {
-        style: style
-      }).addTo(app.map);
+      // L.geoJson(response, {
+      //   style: style
+      // }).addTo(app.map);
+
+      console.log(L.geoJson(response))
+      var geojsonLayr = new GeoJSONLayer({
+        url: response
+      });
+      app.map.addLayer(geojsonLayr)
+
     });
 
 

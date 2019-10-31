@@ -68,7 +68,6 @@ $(document).ready(function() {
             $text = $col.text();
 
           return $text.replace('"', '""'); // escape double quotes
-
         }
       }
 
