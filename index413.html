@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Calcite Maps and Bootstrap - 4.13</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <!-- Calcite Bootstrap -->
+  <link rel="stylesheet" href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-bootstrap.min-v0.8.css" />
+
+  <!-- Calcite Maps -->
+  <link rel="stylesheet" href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.8.css" />
+
+  <!-- ArcGIS JS 4 -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/themes/light/main.css" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <!-- /.calcite-panels -->
+
+  <script type="text/javascript">
+    var dojoConfig = {
+      packages: [{
+          name: "bootstrap",
+          location: "https://esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap"
+        },
+        {
+          name: "calcite-maps",
+          location: "https://esri.github.io/calcite-maps/dist/js/dojo"
+        }
+      ]
+    };
+  </script>
+
+  <!-- ArcGIS JS 4 -->
+  <script src="https://js.arcgis.com/4.13/"></script>
+
+  <script src="js/main413.js"></script>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #mapViewDiv {
+      padding: 0;
+      height: 960px;
+    }
+
+    .panel-text{
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<!-- <body class="calcite calcite-maps calcite-nav-top calcite-margin-all calcite-zoom-top-left calcite-layout-inline-left"> -->
+
+<body>
+  <!-- Navbar -->
+  <header class="top-nav fade-in">
+    <div class="grid-container">
+      <div class="column-24">
+        <!-- desktop sized navigation -->
+        <div class="tablet-hide">
+          <!-- logo / home -->
+          <a href="#" class="top-nav-title">CMAP Census Data API Test</a>
+          <!-- primary navigation sections -->
+          <nav class="top-nav-list" role="navigation" aria-labelledby="topnav">
+            <a class="top-nav-link" href="#">Github</a>
+            <a class="top-nav-link" href="#">Census Reference</a>
+          </nav>
+          <!-- user specific dropdowns -->
+        </div>
+        <!-- tablet and mobile sized navigation -->
+        <div class="tablet-show top-nav-flex">
+          <!-- open primary navigation drawer -->
+          <nav class="top-nav-flex-list" role="navigation" aria-labelledby="topnav">
+            <a href="/" class="icon-ui-menu top-nav-link js-drawer-toggle" data-drawer="top-nav"><span class="phone-hide">Menu</span></a>
+          </nav>
+          <!-- logo / home -->
+          <header class="top-nav-flex-title">
+            <a href="/" class="top-nav-link">ArcGIS <span class="phone-hide">for Developers</span></a>
+          </header>
+          <!-- user specific actions -->
+          <nav class="top-nav-flex-list text-right" role="navigation" aria-labelledby="usernav">
+            <a class="top-nav-link icon-ui-search js-drawer-toggle" href="#" aria-label="Search"><span class="phone-hide">Search</span></a>
+            <a class="top-nav-link icon-ui-user margin-left-1 js-drawer-toggle" href="#" aria-label="Sign In"><span class="phone-hide">Sign In</span></a>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Map Container  -->
+  <div class="grid-container ">
+    <div class="column-8">
+      <div class="panel modifier-class">
+        <h4 class="trailer-half panel-text">Description</h4>
+        <p class="trailer-0">This is a test to access census data from the census api.</p>
+        <br />
+        <!--Geography Selection -->
+        <p class="trailer-0">Select Geography</p>
+        <div class="panel-body ">
+          <select id="selectGeography" class="form-control btn btn-fill panel-text">
+            <option value="county" data-vector="" class ="btn btn-clear panel-text">County</option>
+            <option value="muni" data-vector="" class ="btn btn-clear panel-text">Municipality</option>
+            <option value="tract" data-vector="" class ="btn btn-clear panel-text">Tract</option>
+            <option value="bg" data-vector="" class ="btn btn-clear panel-text">Block Group</option>
+          </select>
+      </div>
+    </div>
+    </div>
+    <div class="column-16">
+      <span>
+        <div id="mapViewDiv" class="calcite-map-absolute"></div>
+      </span>
+    </div>
+  </div>
+  <!-- /.container -->
+
+  <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
+  <!-- ArcGIS JS 3.x -->
+  <script src="https://js.arcgis.com/4.13/"></script>
+  <script src="js/main413.js"></script>
+</body>
+
+</html>
