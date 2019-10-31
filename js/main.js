@@ -131,7 +131,6 @@ require([
   // }
   // Add Census Geography
   //census
-
   census({
       vintage: 2017, // required
       geoHierarchy: {
