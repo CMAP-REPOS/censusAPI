@@ -155,11 +155,8 @@ require([
         }
       });
 
-      const table = document.getElementById('container')
-
-
       //set the innerHTML to the generated list
-      document.getElementById('container').innerHTML = json2table(response)
+      document.getElementById('dvData').innerHTML = json2table(response)
 
       function getColor(percent) {
         return percent > 50 ?

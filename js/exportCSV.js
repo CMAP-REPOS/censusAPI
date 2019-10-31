@@ -80,7 +80,7 @@ $(document).ready(function() {
         outputFile = outputFile.replace('.csv', '') + '.csv'
 
         // CSV
-        exportTableToCSV.apply(this, [$('#container > table'), outputFile]);
+        exportTableToCSV.apply(this, [$('#dvData > table'), outputFile]);
 
         // IF CSV, don't do event.preventDefault() or return false
         // We actually need this to be a typical hyperlink
