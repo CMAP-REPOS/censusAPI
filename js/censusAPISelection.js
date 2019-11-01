@@ -32,8 +32,6 @@ function censusCounty(acsType,vintage,stateCode,tables){
 }
 
 
-
-
 var availableAPIs = {
   acs1: [2011, 2012, 2013, 2014, 2015, 2016, 2017],
   acs5: [2011, 2012, 2013, 2014, 2015, 2016, 2017],
@@ -75,6 +73,14 @@ function selectCDSTables() {
 function submitSelection(){
   var selectedList = []
   var elements = document.getElementById("censusTables").options;
+  //Selected Census Data Type Value
+  var cDT = document.getElementById("selectCensusDataType");
+  var selCDT = cDT.options[cDT.selectedIndex].value;
+
+  //Selected Census Data Type Value
+  var v = document.getElementById("vintage");
+  var selV = v.options[v.selectedIndex].value;
+
   if (elements.length > 0) {
     for (var i = 0; i < elements.length; i++) {
       if(elements[i].selected == true){
@@ -84,5 +90,5 @@ function submitSelection(){
   }
   console.log(selectedList)
   //var tables = ["S0102_C01_001E", "S0102_C02_001E"]
-  censusCounty("acs5", 2017, "17", selectedList)
+  censusCounty(selCDT, selV, "17", selectedList)
 }
