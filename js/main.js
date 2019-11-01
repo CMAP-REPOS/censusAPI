@@ -1,43 +1,6 @@
 //countyCensusCall()
 //console.log(censusGeoJson)
 
-function json2table(json, classes) {
-  var cols = Object.keys(json[0]);
-
-  var headerRow = '';
-  var bodyRows = '';
-
-  classes = classes || '';
-
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  cols.map(function(col) {
-    headerRow += '<th>' + capitalizeFirstLetter(col) + '</th>';
-  });
-
-  json.map(function(row) {
-    bodyRows += '<tr>';
-
-    cols.map(function(colName) {
-      bodyRows += '<td>' + row[colName] + '</td>';
-    })
-
-    bodyRows += '</tr>';
-  });
-
-  return '<table class="' +
-    classes +
-    '"><thead><tr>' +
-    headerRow +
-    '</tr></thead><tbody>' +
-    bodyRows +
-    '</tbody></table>';
-}
-
-
-
 var app;
 require([
   // ArcGIS
@@ -58,7 +21,6 @@ require([
   "dojo/_base/array",
   "dojo/domReady!",
 ], function(Map, FeatureLayer, Search, Graphic, query, CalciteMaps, arr) {
-
 
 
   // App
@@ -131,23 +93,42 @@ require([
   // }
   // Add Census Geography
   //census
-  census({
-      vintage: 2017, // required
-      geoHierarchy: {
-        // required
-        state: "17",
-        county: "*"
-      },
-      //cant make call for data and geojson at the same time
-      //geoResolution: "5m",
-      sourcePath: ["acs", "acs5", "subject"], // required
-      values: ["S0102_C01_001E", "S0102_C02_001E"], // required
-      statsKey: "7d28d36d1b0595e1faf3c7c56ed6df8f4def1452" // required for > 500 calls per day
-    },
-    function(error, response) {
+  function censusCounty(acsType,vintage,stateCode,tables){
 
-      document.getElementById('container').innerHTML = json2table(response)
-    });
+    var tableType;
+    if(tables[0].startsWith('S')){
+      tableType = 'subject'
+    }
+    else if (tables[0].startsWith('B')) {
+      tableType = ''
+    }
+
+    else if (tables[0].startsWith('D')) {
+      tableType = 'profile'
+    }
+
+    census({
+        vintage: vintage, // required
+        geoHierarchy: {
+          // required
+          state: stateCode,
+          county: "*"
+        },
+        //cant make call for data and geojson at the same time
+        //geoResolution: "5m",
+        sourcePath: ["acs", acsType, tableType], // required
+        values: tables, // required
+        statsKey: "7d28d36d1b0595e1faf3c7c56ed6df8f4def1452" // required for > 500 calls per day
+      },
+      function(error, response) {
+
+        document.getElementById('container').innerHTML = json2table(response)
+      });
+  }
+
+  var tables = ["S0102_C01_001E", "S0102_C02_001E"]
+  //censusCounty("acs5", 2017, "17", tables)
+
   census({
       vintage: 2017, // required
       geoHierarchy: {

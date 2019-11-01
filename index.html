@@ -32,6 +32,8 @@
 
   <script src="js/citysdk.js"></script>
   <script src="js/exportCSV.js"></script>
+  <script src="js/json2table.js"></script>
+
 
   <style>
     table {
@@ -117,9 +119,53 @@
         <p class="trailer-0">This is a test to access census data from the census api.</p>
         <br />
         <!--Geography Selection -->
+        <p class="trailer-0">Select Census Data Type</p>
+        <div class="panel-body ">
+          <select id="selectCensusDataType" class="form-control btn btn-fill panel-text" onChange="changecat(this.value);">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="acs1" data-vector="" class="btn btn-clear panel-text">American Community Survey 1-Year Data</option>
+            <option value="acs5" data-vector="" class="btn btn-clear panel-text">American Community Survey 5-Year Data</option>
+            <option value="dec" data-vector="" class="btn btn-clear panel-text">Decennial Census</option>
+          </select>
+        </div>
+        <!--Vintage Selection -->
+        <p class="trailer-0">Select Vintage</p>
+        <div class="panel-body ">
+          <select name="vintage" id="vintage" class="form-control btn btn-fill panel-text">
+            <option value="" disabled selected> -- select an option -- </option>
+          </select>
+        </div>
+
+        <!--CDS Summary Selection -->
+        <p class="trailer-0">Community Data Snapshot Summary?</p>
+        <div class="panel-body ">
+          <label><input type="checkbox" id="myCheck" onclick="selectCDSTables()">Check to create CDS</label>
+        </div>
+
+        <!--Table Selection  -->
+        <p class="trailer-0">Census Tables</p>
+        <div class="panel-body ">
+          <select id="censusTables" name="censusTables" multiple>
+            <option value="B01001_001E">SEX BY AGE</option>
+            <option value="B01002_001E">MEDIAN AGE BY SEX</option>
+            <option value="B03001_001E">HISPANIC OR LATINO ORIGIN BY RACE</option>
+            <option value="B08203">NUMBER OF WORKERS IN HOUSEHOLD BY VEHICLES AVAILABLE</option>
+          </select>
+        </div>
+
+        <!--Table Selection -->
+        <!-- <p class="trailer-0">Select Vintage</p>
+        <div class="panel-body ">
+          <select name="vintage" id="vintage" class="form-control btn btn-fill panel-text">
+            <option value="" disabled selected>  select an option  </option>
+          </select>
+        </div> -->
+
+        <!--Geography Selection -->
         <p class="trailer-0">Select Geography</p>
         <div class="panel-body ">
           <select id="selectGeography" class="form-control btn btn-fill panel-text">
+            <option disabled selected value> -- select an option -- </option>
             <option value="county" data-vector="" class="btn btn-clear panel-text">County</option>
             <option value="muni" data-vector="" class="btn btn-clear panel-text">Municipality</option>
             <option value="tract" data-vector="" class="btn btn-clear panel-text">Tract</option>
@@ -127,6 +173,10 @@
           </select>
         </div>
 
+        <br>
+        <div class="panel-body ">
+        <input type="button" onclick="submitSelection()" value="getData">
+        </div>
       </div>
 
     </div>
@@ -141,11 +191,11 @@
       <br />
       <div id="dvData">
         <table id="container"></table>
-        </div>
-        <br />
-        <div class='button'>
-          <a href="#" id="export" role='button'>Click On This Here Link To Export The Table Data into a CSV File
-          </a>
+      </div>
+      <br />
+      <div class='button'>
+        <a href="#" id="export" role='button'>Click On This Here Link To Export The Table Data into a CSV File
+        </a>
       </div>
     </div>
   </div>
@@ -249,6 +299,7 @@
   <!-- ArcGIS JS 3.x -->
   <script src="https://js.arcgis.com/3.30/"></script>
   <script src="js/main.js"></script>
+  <script src="js/censusAPISelection.js"></script>
 </body>
 
 </html>
