@@ -30,9 +30,6 @@
   <!-- Load Esri Leaflet from CDN -->
   <script src="https://unpkg.com/esri-leaflet@2.3.1/dist/esri-leaflet.js" integrity="sha512-Np+ry4Dro5siJ1HZ0hTwn2jsmu/hMNrYw1EIK9EjsEVbDge4AaQhjeTGRg2ispHg7ZgDMVrSDjNrzH/kAO9Law==" crossorigin=""></script>
 
-  <script src="js/citysdk.js"></script>
-  <script src="js/exportCSV.js"></script>
-  <script src="js/json2table.js"></script>
 
 
   <style>
@@ -125,31 +122,31 @@
             <option disabled selected value> -- select an option -- </option>
             <option value="acs1" data-vector="" class="btn btn-clear panel-text">American Community Survey 1-Year Data</option>
             <option value="acs5" data-vector="" class="btn btn-clear panel-text">American Community Survey 5-Year Data</option>
-            <option value="dec" data-vector="" class="btn btn-clear panel-text">Decennial Census</option>
+            <option value="sf1" data-vector="" class="btn btn-clear panel-text">Decennial Census</option>
           </select>
         </div>
         <!--Vintage Selection -->
         <p class="trailer-0">Select Vintage</p>
         <div class="panel-body ">
-          <select name="vintage" id="vintage" class="form-control btn btn-fill panel-text">
+          <select name="vintage" id="vintage" class="form-control btn btn-fill panel-text" onChange="changeTable(this.value);">
             <option value="" disabled selected> -- select an option -- </option>
           </select>
         </div>
 
         <!--CDS Summary Selection -->
-        <p class="trailer-0">Community Data Snapshot Summary?</p>
+        <p class="trailer-0">Create a summary?</p>
         <div class="panel-body ">
           <label><input type="checkbox" id="myCheck" onclick="selectCDSTables()">Check to create CDS</label>
+          <label><input type="checkbox" id="myCheck" onclick="selectCDSTables()">Demographics</label>
+          <label><input type="checkbox" id="myCheck" onclick="selectCDSTables()">Housing Affordability</label>
+          <label><input type="checkbox" id="myCheck" onclick="selectCDSTables()">Housing Stock</label>
         </div>
 
         <!--Table Selection  -->
         <p class="trailer-0">Census Tables</p>
         <div class="panel-body ">
           <select id="censusTables" name="censusTables" multiple>
-            <option value="B01001_001E">SEX BY AGE</option>
-            <option value="B01002_001E">MEDIAN AGE BY SEX</option>
-            <option value="B03001_001E">HISPANIC OR LATINO ORIGIN BY RACE</option>
-            <option value="B08203">NUMBER OF WORKERS IN HOUSEHOLD BY VEHICLES AVAILABLE</option>
+            <option value="" disabled selected> -- select an option -- </option>
           </select>
         </div>
 
@@ -161,15 +158,22 @@
           </select>
         </div> -->
 
-        <!--Geography Selection -->
-        <p class="trailer-0">Select Geography</p>
+        <!--Geography Type Selection -->
+        <p class="trailer-0">Select Geography Type</p>
         <div class="panel-body ">
-          <select id="selectGeography" class="form-control btn btn-fill panel-text">
+          <select id="selectGeographyType" class="form-control btn btn-fill panel-text" onChange="changeGeo(this.value)">
             <option disabled selected value> -- select an option -- </option>
             <option value="county" data-vector="" class="btn btn-clear panel-text">County</option>
             <option value="muni" data-vector="" class="btn btn-clear panel-text">Municipality</option>
             <option value="tract" data-vector="" class="btn btn-clear panel-text">Tract</option>
             <option value="bg" data-vector="" class="btn btn-clear panel-text">Block Group</option>
+          </select>
+        </div>
+        <!--Geography Selection -->
+        <p class="trailer-0">Select Geography</p>
+        <div class="panel-body ">
+          <select name="selectGeography" id="selectGeography" multiple size=5>
+            <option value="" disabled selected> -- select an option -- </option>
           </select>
         </div>
 
@@ -285,12 +289,12 @@
       packages: [{
           name: "bootstrap",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo-bootstrap"
-          location: location.pathname.replace(/\/[^/]+$/, "") + "./dist/vendor/dojo-bootstrap"
+          location: location.pathname.replace(/\/[^/]+$/, "") + "/dist/vendor/dojo-bootstrap"
         },
         {
           name: "calcite-maps",
           //location: "https://esri.github.io/calcite-maps/dist/js/dojo"
-          location: location.pathname.replace(/\/[^/]+$/, "") + "./dist/js/dojo"
+          location: location.pathname.replace(/\/[^/]+$/, "") + "/dist/js/dojo"
         }
       ]
     };
@@ -298,7 +302,11 @@
   <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
   <!-- ArcGIS JS 3.x -->
   <script src="https://js.arcgis.com/3.30/"></script>
+  <script src="js/citysdk.js"></script>
+  <script src="js/exportCSV.js"></script>
+  <script src="js/json2table.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/censusCall.js"></script>
   <script src="js/censusAPISelection.js"></script>
 </body>
 

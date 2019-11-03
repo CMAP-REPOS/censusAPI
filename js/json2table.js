@@ -1,5 +1,15 @@
 function json2table(json, classes) {
-  var cols = Object.keys(json[0]);
+
+  console.log(Object.keys(json[0]))
+  var allCols = Object.keys(json[0])
+  var cols=[];
+  for(var i=0;i<allCols.length;i++){
+    console.log(allCols[i])
+    if(allCols[i].endsWith("E")){
+      cols.push(allCols[i])
+    }
+  }
+  console.log(cols)
 
   var headerRow = '';
   var bodyRows = '';
