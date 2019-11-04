@@ -7,8 +7,9 @@ var availableAPIs = {
   dec: [1990, 2000, 2010]
 }
 
-var availableTables =  [];
 
+var availableTags = [];
+var selectedTables = [];
 //list of CDS Tables
 var cdsList = ["B01001_001E", "B01002_001E"]
 
@@ -27,11 +28,10 @@ var cdsTables = {
   }
 }
 
-
-
 //Make request to census groups API
 //censusGroups()
 function censusGroups() {
+  //var availableTags =  [];
   //Selected Census Data Type Value
   var v = document.getElementById("vintage");
   var selV = v.options[v.selectedIndex].value;
@@ -51,18 +51,23 @@ function censusGroups() {
     //console.log(groups)
     if (request.status >= 200 && request.status < 400) {
 
-      //
       for (k in groups["groups"]) {
-         availableTables.push(groups["groups"][k])
+        var lastChar = groups["groups"][k]['name'][groups["groups"][k]['name'].length-1];
+        var isNumeric = /^\d+$/.test(lastChar);
+        if(isNumeric == true){
+          availableTags.push(groups["groups"][k]['name'] + "-" + groups["groups"][k]['description'])
+        }
+
       };
     } else {
       const errorMessage = document.createElement("marquee")
       errorMessage.textContent = `Gah, it"s not working!`
       app.appendChild(errorMessage)
     }
-    //console.log(availableTables)
+    //console.log(availableTags)
   }
   request.send()
+  //return availableTags
 };
 
 
@@ -93,16 +98,63 @@ function changeGeo(value) {
 //Add available tables based on census data type and vintage selection
 function changeTable(value) {
   censusGroups();
-  if (value.length == 0) document.getElementById("censusTables").innerHTML = "<option></option>";
-  else {
-    //console.log(availableTables)
-    var catOptions = "";
-    for (var i=0; i<availableTables.length;i++) {
-      console.log(availableTables)
-      catOptions += "<option value=" + availableTables[i]["name"] + ">" + availableTables[i]["name"] + "-" + availableTables[i]["description"] + "</option>";
+  // console.log(availableTags)
+  // if (value.length == 0) document.getElementById("censusTables").innerHTML = "<option></option>";
+  // else {
+  //   // //console.log(availableTags)
+  //   // var catOptions = "";
+  //   // for (var i=0; availableTags.length;i++) {
+  //   //   console.log(availableTags[i])
+  //   //   catOptions += "<option value=" + availableTags[i]["name"] + ">" + availableTags[i]["name"] + "-" + availableTags[i]["description"] + "</option>";
+  //   // }
+  //   // document.getElementById("censusTables").innerHTML = catOptions;
+  // }
+  $(function() {
+    function split(val) {
+      return val.split(/,\s*/);
     }
-    document.getElementById("censusTables").innerHTML = catOptions;
-  }
+
+    function splitTableName(val) {
+      return val.split(/-\s*/);
+    }
+
+    function extractLast(term) {
+      return split(term).pop();
+    }
+
+    $("#tags")
+      // don't navigate away from the field on tab when selecting an item
+      .on("keydown", function(event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+          $(this).autocomplete("instance").menu.active) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 4,
+        source: function(request, response) {
+          // delegate back to autocomplete, but extract the last term
+          response($.ui.autocomplete.filter(
+            availableTags, extractLast(request.term)));
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function(event, ui) {
+          var terms = split(this.value);
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push(ui.item.value);
+          selectedTables.push(splitTableName(ui.item.value)[0])
+          // add placeholder to get the comma-and-space at the end
+          terms.push("");
+          this.value = terms.join(", ");
+          return false;
+        }
+      });
+  });
 }
 
 //Select individual census tables or CDS Summary
@@ -127,8 +179,8 @@ function selectCDSTables() {
 };
 
 function submitSelection() {
-  var selectedList = [];
-  var tablesSelected = document.getElementById("censusTables").options;
+  //var selectedList = [];
+  //var tablesSelected = document.getElementById("censusTables").options;
   //Selected Census Data Type Value
   var cDT = document.getElementById("selectCensusDataType");
   var selCDT = cDT.options[cDT.selectedIndex].value;
@@ -152,14 +204,16 @@ function submitSelection() {
   var v = document.getElementById("vintage");
   var selV = v.options[v.selectedIndex].value;
 
-  if (tablesSelected.length > 0) {
-    for (var i = 0; i < tablesSelected.length; i++) {
-      if (tablesSelected[i].selected == true) {
-        selectedList.push(tablesSelected[i].value)
-      };
-    }
-  }
+  // if (tablesSelected.length > 0) {
+  //   for (var i = 0; i < tablesSelected.length; i++) {
+  //     if (tablesSelected[i].selected == true) {
+  //       selectedList.push(tablesSelected[i].value)
+  //     };
+  //   }
+  // }
   //console.log(selectedList)
   //Submit to collect data
-  censusCounty(selCDT, selV, "17", selGeoList.join(","), ["NAME", "group(" + selectedList.join(",") + ")"])
+  //console.log(selectedTables)
+  //censusCounty(selCDT, selV, "17", selGeoList.join(","), ["NAME", "group(" + selectedTables.join(",") + ")"])
+  censusCounty(selCDT, selV, "17", selGeoList.join(","), selectedTables)
 }
