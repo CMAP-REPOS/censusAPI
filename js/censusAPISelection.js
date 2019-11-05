@@ -11,38 +11,43 @@ var availableAPIs = {
 var availableTags = [];
 var selectedTables = [];
 //list of CDS Tables
-var cdsList = ["B01001", //Age
-               "B01002", //Med Age
-               "B03002", //Race
-               "B08301", //Modeshare
-               "B08136", //Modeshare
-               "B09019", //Pop HH
-               "B11003", //HH Type
-               "B11016", //Family Size
-               "B15003", //Educational attainment
-               "C16001", //Lang at home
-               "B16005", //Linguistic isolation
-               "B17001", //Pop Poverty
-               "B17010", //Fam Poverty
-               "B18135", //Disabled Pop
-               "B19001", //Income
-               "B19058", //Public Assistance or "Food Stamps"
-               "B19083", //Public Assistance or "Food Stamps"
-               "B19101", //Public Assistance or "Food Stamps"
-               "B19119", //Family Median Income
-               "B23001", //Labor Force
-               "B25002", //Occupied/Vacant HU
-               "B25024", //HU Type
-               "B25018", //HU Type
-               "B25032", //HU Type
-               "B25034", //HU Age / Number of Bedrooms
-               "B25035", //HU Age / Number of Bedrooms
-               "B25035",
-               "B25037",
-               "B25041",
-               "B25046",
-
-
+var cdsList = [
+  "B01001", //Age
+  "B01002", //Med Age
+  "B03002", //Race
+  "B08301", //Modeshare
+  "B08136", //Modeshare
+  "B09019", //Pop HH
+  "B11003", //HH Type
+  "B11016", //Family Size
+  "B15003", //Educational attainment
+  "C16001", //Lang at home
+  "B16005", //Linguistic isolation
+  "B17001", //Pop Poverty
+  "B17010", //Fam Poverty
+  "B18135", //Disabled Pop
+  "B19001", //Income
+  "B19058", //Public Assistance or "Food Stamps"
+  "B19083", //Public Assistance or "Food Stamps"
+  "B19101", //Public Assistance or "Food Stamps"
+  "B19119", //Family Median Income
+  "B23001", //Labor Force
+  "B25002", //Occupied/Vacant HU
+  "B25024", //HU Type
+  "B25018", //HU Type
+  "B25032", //HU Type
+  "B25034", //HU Age / Number of Bedrooms
+  "B25035", //HU Age / Number of Bedrooms
+  "B25035",
+  "B25037",
+  "B25041",
+  "B25046",
+  "B25070", //Rent/Owner Costs
+  "B25091", //Housing Value
+  "B25118", //HU Inc Tenure
+  "B25106", //HU Inc Tenure
+  "B27001", //Pop No Health Insurance
+  "B99253", //Imputation of Vacancy Status
 ]
 
 //list of CMAP Counties
