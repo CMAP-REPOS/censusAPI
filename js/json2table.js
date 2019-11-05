@@ -1,7 +1,6 @@
-function json2table(json,done) {
+function json2table(json, classes) {
 
-  if (done == true){
-    console.log(Object.keys(json[0]))
+    console.log(Object.keys(json))
     var allCols = Object.keys(json[0])
 
     var cols=[];
@@ -16,7 +15,7 @@ function json2table(json,done) {
     var headerRow = '';
     var bodyRows = '';
 
-    var classes = classes || '';
+    classes = classes || '';
 
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
@@ -43,6 +42,5 @@ function json2table(json,done) {
       '</tr></thead><tbody>' +
       bodyRows +
       '</tbody></table>';
-  }
 
 }
