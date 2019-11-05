@@ -1,4 +1,4 @@
-function json2table(json,done) {
+function json2table(json, classes) {
 
     //console.log(json.length)
 
@@ -17,7 +17,7 @@ function json2table(json,done) {
     var headerRow = '';
     var bodyRows = '';
 
-    var classes = classes || '';
+    classes = classes || '';
 
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
