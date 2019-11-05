@@ -34,8 +34,21 @@
   <script src="https://unpkg.com/esri-leaflet@2.3.1/dist/esri-leaflet.js" integrity="sha512-Np+ry4Dro5siJ1HZ0hTwn2jsmu/hMNrYw1EIK9EjsEVbDge4AaQhjeTGRg2ispHg7ZgDMVrSDjNrzH/kAO9Law==" crossorigin=""></script>
 
 
-
   <style>
+
+  .optionsPanel {
+    position: fixed;
+    z-index: 1;
+    top: 50px;
+    left: 10px;
+    padding-bottom: 200px
+}
+
+.content{
+  margin-left: 400px; /* Same width as the sidebar + left position in px */
+  padding: 0px 10px;
+}
+
   .ui-autocomplete {
     background:white;
 }
@@ -109,8 +122,8 @@
   <br />
   <br />
   <!-- Map Container  -->
-  <div class="grid-container ">
-    <div class="column-8">
+  <div class="grid-container">
+    <div class="column-8 optionsPanel">
       <div class="panel modifier-class">
         <h4 class="trailer-half panel-text">Description</h4>
         <p class="trailer-0">This is a test to access census data from the census api.</p>
@@ -187,7 +200,7 @@
       </div>
 
     </div>
-    <div class="column-16">
+    <div class="column-16 content" id="content">
       <span>
         <div id="mapViewDiv" class="calcite-map-absolute"></div>
       </span>
