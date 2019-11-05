@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="description" content="Calcite Maps Demo - ArcGIS">
+  <meta name="author" content="">
+  <link rel="icon" href="https://www.esri.com/favicon.ico">
+  <title>Census API Testing</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.3.0/json2html.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <!-- Calcite Maps Bootstrap -->
+  <link rel="stylesheet" href="dist/css/calcite-maps-bootstrap.min-v0.10.css">
+
+  <!-- Calcite Maps -->
+  <link rel="stylesheet" href="dist/css/calcite-maps-arcgis-3.x.min-v0.10.css" -->
+
+  <!-- ArcGIS JS 3.x -->
+  <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
+  <link rel="stylesheet" href="https://js.arcgis.com/3.30/esri/css/esri.css">
+
+  <!-- Load Leaflet from CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+
+  <!-- Load Esri Leaflet from CDN -->
+  <script src="https://unpkg.com/esri-leaflet@2.3.1/dist/esri-leaflet.js" integrity="sha512-Np+ry4Dro5siJ1HZ0hTwn2jsmu/hMNrYw1EIK9EjsEVbDge4AaQhjeTGRg2ispHg7ZgDMVrSDjNrzH/kAO9Law==" crossorigin=""></script>
+
+
+
+  <style>
+  .ui-autocomplete {
+    background:white;
+}
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      overflow-x:scroll;
+      display:inline-block;
+      width:100%;
+      white-space: nowrap;
+      table-layout:fixed;
+    }
+    table td {border:solid 1px #fab; width:100px; word-wrap:break-word;}
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #mapViewDiv {
+      padding: 0;
+      height: 500px;
+    }
+
+    .panel-text {
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<!-- <body class="calcite calcite-maps calcite-nav-top calcite-margin-all calcite-zoom-top-left calcite-layout-inline-left"> -->
+
+<body>
+
+  <div class="grid-container ">
+    <div class="column-24">
+      <br />
+      <div id="dvData">
+        <table id="container"></table>
+      </div>
+      <br />
+      <div class='button'>
+        <a href="#" id="export" role='button'>Click On This Here Link To Export The Table Data into a CSV File
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- /.container -->
+
+
+  <!-- ArcGIS JS 3.x -->
+  <script src="js/citysdk.js"></script>
+  <script src="js/exportCSV.js"></script>
+  <script src="js/json2table.js"></script>
+  <script src="js/censusCall.js"></script>
+  <script src="js/censusAPISelection.js"></script>
+  <script>
+
+
+  var tables = ["B01003","B01002"]
+
+
+  function censusPromise(args) {
+    return new Promise(function(resolve, reject) {
+      census(args, function(err, json) {
+        if (!err) {
+          resolve(json);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  }
+
+  var responses = [];
+  //var a = [];
+
+  function jsonPush(args) {
+    //responses.push(args)
+    //console.log(responses)
+    $.extend(responses, args)
+    return responses
+  }
+
+  var tableType;
+
+
+  function getTable(i) {
+
+    censusParams = {
+      vintage: 2017, //vintage, // required
+      geoHierarchy: {
+        // required
+        state: "17", //stateCodes,
+        county: "031" //countyCodes
+      },
+      //cant make call for data and geojson at the same time
+      //geoResolution: "5m",
+      //sourcePath: [src, censusType, tableType], // required
+      sourcePath: ["acs", "acs5"],
+      values: ["NAME", "group(" + i + ")"], // required
+      statsKey: "7d28d36d1b0595e1faf3c7c56ed6df8f4def1452" // required for > 500 calls per day
+    }
+
+    return censusPromise(censusParams).then(function(json) {
+        //return jsonPush(json[0]);
+        //console.log(json)
+        return json
+      })
+      .then(function(json){
+        return json
+      })
+      // .then(function(responses) {
+      //   console.log(responses)
+      //   return (responses)
+      // })
+  }
+
+  for(let i=0;i<tables.length;i++){
+    getTable(tables[i]).then(function(r){
+      console.log(r)
+      document.getElementById('container').innerHTML += json2table(r)
+    })
+  }
+console.log(responses)
+
+
+
+ </script>
+</body>
+
+</html>

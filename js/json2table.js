@@ -1,17 +1,18 @@
 function json2table(json,done) {
 
-  if (done == true){
-    console.log(Object.keys(json[0]))
+    //console.log(json.length)
+
+    //for(var i=0; i<json)
     var allCols = Object.keys(json[0])
 
-    var cols=[];
+    var cols=["NAME"];
     for(var i=0;i<allCols.length;i++){
       //console.log(allCols[i])
-      if(allCols[i].endsWith("E")){
+      if((allCols[i].endsWith("E")) && allCols[i] != "NAME" ){
         cols.push(allCols[i])
       }
     }
-    console.log(cols)
+    //console.log(cols)
 
     var headerRow = '';
     var bodyRows = '';
@@ -43,6 +44,5 @@ function json2table(json,done) {
       '</tr></thead><tbody>' +
       bodyRows +
       '</tbody></table>';
-  }
 
 }

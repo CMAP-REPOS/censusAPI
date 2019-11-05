@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-      console.log("HELLO")
+      //console.log("HELLO")
 
       function exportTableToCSV($table, filename) {
         var $headers = $table.find('tr:has(th)'),
@@ -79,7 +79,12 @@ $(document).ready(function() {
         outputFile = outputFile.replace('.csv', '') + '.csv'
 
         // CSV
-        exportTableToCSV.apply(this, [$('#dvData > table'), outputFile]);
+        var element = document.getElementsByTagName("Table"), index;
+
+      for (index = element.length - 1; index >= 0; index--) {
+        exportTableToCSV.apply(this, [element[index], outputFile]);;
+      }
+        //exportTableToCSV.apply(this, [$('#dvData > table'), outputFile]);
 
         // IF CSV, don't do event.preventDefault() or return false
         // We actually need this to be a typical hyperlink
