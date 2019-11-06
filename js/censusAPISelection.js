@@ -62,6 +62,10 @@ var cmapCounties = {
   "197": "Will County"
 }
 
+var cmapTracts = {
+  "17197880419": "Census Tract 8804.19",
+}
+
 //includes counties within cmap modeling area
 var cmapMunis = {
   "00243": "Addison",
@@ -503,6 +507,11 @@ function changeGeo(value) {
     geoDropdown(cmapMunis)
   }
 
+  if (selGeoType == 'tract') {
+    $("#selectGeography").empty();
+    geoDropdown(cmapTracts)
+  }
+
   function geoDropdown(geos) {
     if (value.length == 0) document.getElementById("selectGeography").innerHTML = "<option></option>";
     else {
@@ -647,5 +656,21 @@ function submitSelection() {
   //Submit to collect data
   //console.log(selectedTables)
   //censusCounty(selCDT, selV, "17", selGeoList.join(","), ["NAME", "group(" + selectedTables.join(",") + ")"])
-  censusCounty(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+
+  if(selGeoType == 'county'){
+    censusCounty(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+  }
+
+  if(selGeoType == 'muni'){
+    censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+  }
+
+  if(selGeoType == 'tract'){
+    censusTract(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+  }
+
+  if(selGeoType == 'bg'){
+    censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+  }
+
 }

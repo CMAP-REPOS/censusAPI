@@ -35,33 +35,53 @@
 
 
   <style>
-
-  .optionsPanel {
-    position: fixed;
-    z-index: 1;
+    .optionsPanel {
+      /* position: fixed; */
+      /* z-index: 1;
     top: 50px;
     left: 10px;
-    padding-bottom: 200px
-}
+    padding-bottom: 200px */
+    }
 
-.content{
-  margin-left: 400px; /* Same width as the sidebar + left position in px */
-  padding: 0px 10px;
-}
+    .field{
+      display:inline-block;
+      text-align: center;
+    }
 
-  .ui-autocomplete {
-    background:white;
-}
+    .inputfile{
+      width: 115px
+    }
+
+    #inFile{
+      display:inline-block;
+      text-align: left;
+    }
+
+    .content {
+      /* margin-left: 400px;  Same width as the sidebar + left position in px */
+      /*padding: 0px 10px;
+  */
+    }
+
+    .ui-autocomplete {
+      background: white;
+    }
+
     table {
       font-family: arial, sans-serif;
       border-collapse: collapse;
-      overflow-x:scroll;
-      display:inline-block;
-      width:100%;
+      overflow-x: scroll;
+      display: inline-block;
+      width: 100%;
       white-space: nowrap;
-      table-layout:fixed;
+      table-layout: fixed;
     }
-    table td {border:solid 1px #fab; width:100px; word-wrap:break-word;}
+
+    table td {
+      border: solid 1px #fab;
+      width: 100px;
+      word-wrap: break-word;
+    }
 
     html,
     body {
@@ -94,8 +114,8 @@
           <a href="#" class="top-nav-title">CMAP Census Data API Test</a>
           <!-- primary navigation sections -->
           <nav class="top-nav-list" role="navigation" aria-labelledby="topnav">
-            <a class="top-nav-link" href="#">Github</a>
-            <a class="top-nav-link" href="#">Census Reference</a>
+            <a class="top-nav-link" href="https://github.com/brittaneyross/censusAPI">Github</a>
+            <a class="top-nav-link" href="https://uscensusbureau.github.io/citysdk/docs/">Census Reference</a>
           </nav>
           <!-- user specific dropdowns -->
         </div>
@@ -175,16 +195,39 @@
         </div> -->
 
         <!--Geography Type Selection -->
-        <p class="trailer-0">Select Geography Type</p>
-        <div class="panel-body ">
-          <select id="selectGeographyType" class="form-control btn btn-fill panel-text" onChange="changeGeo(this.value)">
-            <option disabled selected value> -- select an option -- </option>
-            <option value="county" data-vector="" class="btn btn-clear panel-text">County</option>
-            <option value="muni" data-vector="" class="btn btn-clear panel-text">Municipality</option>
-            <option value="tract" data-vector="" class="btn btn-clear panel-text">Tract</option>
-            <option value="bg" data-vector="" class="btn btn-clear panel-text">Block Group</option>
-          </select>
+        <div class="grid-container panel-body">
+          <p class="trailer-0">Select Geography Type</p>
+          <div class="column-3">
+            <span><strong>Census Geography</strong></span>
+            <select id="selectGeographyType" class="form-control btn btn-fill panel-text" onChange="changeGeo(this.value)">
+              <option disabled selected value> -- select an option -- </option>
+              <option value="county" data-vector="" class="btn btn-clear panel-text">County</option>
+              <option value="muni" data-vector="" class="btn btn-clear panel-text">Municipality</option>
+              <option value="tract" data-vector="" class="btn btn-clear panel-text">Tract</option>
+              <option value="bg" data-vector="" class="btn btn-clear panel-text">Block Group</option>
+            </select>
+          </div>
+          <div class="column-2">
+            <p style="text-align:center">
+              <b>~or~</b>
+            </p>
+          </div>
+          <div class="column-3">
+            <div style='padding-right:50px;'>
+              <form enctype="multipart/form-data" method="post" id="uploadForm">
+                <div class="field">
+                  <label class="file-upload">
+                    <span><strong>Custom Geography</strong></span>
+                    <input type="file" name="file" id="inFile" class="inputfile"/>
+                  </label>
+                </div>
+              </form>
+              <span class="file-upload-status" style="opacity:1;" id="upload-status"></span>
+              <div id="fileInfo">&nbsp;</div>
+            </div>
+          </div>
         </div>
+
         <!--Geography Selection -->
         <p class="trailer-0">Select Geography</p>
         <div class="panel-body ">
