@@ -1,6 +1,6 @@
-//countyCensusCall()
-//console.log(censusGeoJson)
-
+//Pass all require statements to access esri, dojo,and calcite-maps,and bootstrap classes
+//Casing matters
+//For more info on classes and constructor options see ArcGIS API 3.30 Reference: https://developers.arcgis.com/javascript/3/jsapi/
 var app;
 require([
   // ArcGIS
@@ -74,10 +74,48 @@ require([
 
   parser.parse();
 
-  var portalUrl = "https://www.arcgis.com";
+  // App Config: Map view configuration
+  // map is assigned in the next instance
+  // set map properties using the app configuration
+  // reference map properties here: https://developers.arcgis.com/javascript/3/jsapi/map-amd.html
+  app = {
+    map: null,
+    basemap: "gray-vector", //https://developers.arcgis.com/javascript/3/jsapi/esri.basemaps-amd.html
+    center: [-87.9298, 41.8781],
+    zoom: 9,
+    initialExtent: null,
+    searchWidgetNav: null,
+    searchWidgetPanel: null
+  }
 
+  // instantiate new map object
+  // set properties using configuration
+  app.map = new Map("mapViewDiv", {
+    basemap: app.basemap,
+    center: app.center,
+    zoom: app.zoom,
+    slider: false
+  })
+  // set map extent after map loads
+  app.map.on("load", function() {
+    app.initialExtent = app.map.extent;
+  })
+
+  //load census block feature layer for custom study area allocation
+  var cBlocks = new FeatureLayer('https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/18', {
+    mode: FeatureLayer.MODE_ONDEMAND,
+    outFields: ["*"]
+  })
+  app.map.addLayer(cBlocks)
+
+  var featureLayer;
+
+  //ADD CUSTOM GEO and PERFORM ALLOCATION
+  //location of proxy url used to generate custom geo on the fly
+  var portalUrl = "https://www.arcgis.com";
   esriConfig.defaults.io.proxyUrl = "/proxy/";
 
+  //Trigger to upload custom geography
   on(dom.byId("uploadForm"), "change", function(event) {
     var fileName = event.target.value.toLowerCase();
 
@@ -91,48 +129,6 @@ require([
       dom.byId('upload-status').innerHTML = '<p style="color:red">Add shapefile as .zip file</p>';
     }
   });
-
-  // App
-  app = {
-    map: null,
-    basemap: "dark-gray",
-    //center: L.latLng(41.8781, -87.9298), // lon, lat
-    center: [-87.9298, 41.8781],
-    zoom: 9,
-    initialExtent: null,
-    searchWidgetNav: null,
-    searchWidgetPanel: null
-  }
-  // // Map
-  // app.map = new Map("mapViewDiv", {
-  //   basemap: app.basemap,
-  //   center: app.center,
-  //   zoom: app.zoom
-  // });
-
-  //app.map = L.map("mapViewDiv").setView(app.center, 9);
-
-  //L.esri.basemapLayer('Streets').addTo(app.map);
-
-  app.map = new Map("mapViewDiv", {
-    basemap: app.basemap,
-    center: app.center,
-    zoom: app.zoom,
-    slider: false
-  })
-
-  app.map.on("load", function() {
-    app.initialExtent = app.map.extent;
-  })
-
-  var cBlocks = new FeatureLayer('https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/18', {
-    mode: FeatureLayer.MODE_ONDEMAND,
-    outFields: ["*"]
-  })
-
-  app.map.addLayer(cBlocks)
-
-  var featureLayer;
 
   function generateFeatureCollection(fileName) {
     var name = fileName.split(".");
@@ -242,12 +238,14 @@ require([
       var polygon = response.features[0].geometry;
       // populate the Geometry cache by calling getExtent()
       var polygonExtent = polygon.getExtent();
-      console.log(response);
+      //console.log(response);
       var query = new Query();
       query.spatialRelationship = 'esriSpatialRelContains'
       query.geometry = polygonExtent;
-      console.log(query)
+      //console.log(query)
       cBlocks.queryFeatures(query, collectIDs)
+      //performAllocation()
+      //console.log(inGeo)
 
 
       function collectIDs(featureSet) {
@@ -260,27 +258,20 @@ require([
           if (polygon.contains(feature.geometry.getCentroid())) {
             inGeo.push(feature.attributes.GEOID);
             poptotal += feature.attributes.POP100
-
-            r = "<b>The total pop is <i>" + poptotal + "</i>";
-            dom.byId("messages").innerHTML = r;
           }
         }
+        r = "<b>The total pop is <i>" + poptotal + "</i>";
+        dom.byId("messages").innerHTML = r;
+
+        performAllocation(inGeo)
+      }
+
+      function performAllocation(inGeo){
+        //census parameters from Document Object Model dom
         //console.log(inGeo)
       }
     }
-
-    // var query = new Query();
-    // console.log(featureLayer.polygon)
-    // //query features within extent
-    // query.geometry = featureLayer.polygon;
-    // //query.objectIds = [2]
-    // console.log(query)
-    // // Use a fast bounding box query. It will only go to the server if bounding box is outside of the visible map.
-    // console.log("features select")
-    // //console.log(cBlocks)
-    // cBlocks.queryFeatures(query, selectInBuffer);
   }
-
   function changeRenderer(layer) {
     //change the default symbol for the feature collection for polygons and points
     var symbol = null;
@@ -308,141 +299,9 @@ require([
     }
   }
 
-  function selectInBuffer(response) {
-    var feature;
-    console.log(cBlocks)
-    var features = response.features;
-    console.log(features)
-    var inBuffer = [];
-    // Filter out features that are not actually in buffer, since we got all points in the buffer's bounding box
 
-    var query = new Query();
-    query.objectIds = inBuffer;
-    // Use an objectIds selection query (should not need to go to the server)
-    featureLayer.selectFeatures(query, FeatureLayer.SELECTION_NEW, function(results) {
-      var blockCount = sumBlocks(results);
-      var r = "";
-      r = "<b>The total count of Census Blocks is <i>" + blockCount + "</i>.</b>";
-      dom.byId("messages").innerHTML = r;
-    });
-
-
-
-  }
-
-
-  //
-  // //load census layer
-  // var county = new FeatureLayer("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/100", {
-  //   mode: FeatureLayer.MODE_ONDEMAND,
-  //   outFields: ["*"]
-  // })
-
-  //var county = L.esri.featureLayer({
-  //url: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/100"
-  //})
-  //county.addTo(app.map);
-  //app.map.addLayer(county)
-  //
-  // var muni = new FeatureLayer("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/34")
-  //
-  // //load census Data
-  // arrayCensus.forEach(function(C) {
-  //   //console.log(C)
-  // });
-
-  //var muni = L.esri.featureLayer({
-  //  url: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/34"
-  //})
-  //muni.addTo(app.map);
-
-  //console.log(county)
-  //county.graphic.attributes.forEach(function(G){
-  //  console.log(G)
-  //})
-  //county.graphics.forEach(function(G){
-  //  console.log(G.attributes)
-  //});
-
-  // Search
-  //app.searchDivNav = createSearchWidget("searchNavDiv");
-  //app.searchWidgetPanel = createSearchWidget("searchPanelDiv");
-  // function createSearchWidget(parentId) {
-  //   var search = new Search({
-  //     map: app.map,
-  //     enableHighlight: false
-  //     }, parentId);
-  //   search.startup();
-  //   return search;
-  // }
-  // Add Census Geography
-  //census
-
-
-  // var tables = ["S0102_C01_001E", "S0102_C02_001E"]
-  // //censusCounty("acs5", 2017, "17", tables)
-  //
-  // census({
-  //     vintage: 2017, // required
-  //     geoHierarchy: {
-  //       // required
-  //       state: "17",
-  //       county: "*"
-  //     },
-  //     //cant make call for data and geojson at the same time
-  //     geoResolution: "5m",
-  //     sourcePath: ["acs", "acs5", "subject"], // required
-  //     values: ["S0102_C01_001E", "S0102_C02_001E"], // required
-  //     statsKey: "7d28d36d1b0595e1faf3c7c56ed6df8f4def1452" // required for > 500 calls per day
-  //   },
-  //   function(error, response) {
-  //     //set the innerHTML to the generated list
-  //
-  //     function getColor(percent) {
-  //       return percent > 50 ?
-  //         "#800026" :
-  //         percent > 30 ?
-  //         "#BD0026" :
-  //         percent > 20 ?
-  //         "#E31A1C" :
-  //         percent > 10 ?
-  //         "#FC4E2A" :
-  //         percent > 5 ?
-  //         "#FD8D3C" :
-  //         percent > 0 ?
-  //         "#FEB24C" :
-  //         "#FFF";
-  //     }
-  //
-  //     function style(feature) {
-  //       var total_pop = feature.properties.S0102_C01_001E;
-  //       var total_pop_over60 = feature.properties.S0102_C02_001E;
-  //       //calculate percent
-  //       if (total_pop && total_pop_over60) {
-  //         // check if valid (no 0s or undefined)
-  //         var percent = (total_pop_over60 / total_pop) * 100;
-  //         return {
-  //           fillColor: getColor(percent),
-  //           fillOpacity: 0.7,
-  //           weight: 0.5,
-  //           color: "rgba(255, 255, 255, 0.8)"
-  //         };
-  //       } else {
-  //         return {
-  //           weight: 2,
-  //           fillOpacity: 0,
-  //           weight: 0.5,
-  //           color: "rgba(255, 255, 255, 0.8)"
-  //         };
-  //       }
-  //     }
-  //
-  //     L.geoJson(response, {
-  //       style: style
-  //     }).addTo(app.map);
-  //   });
-
-
+  // PANEL SELECTION OPTIONS
+  // currently inactive
   query("#selectGeography").on("change", function(e) {
     if (e.target.options[e.target.selectedIndex].value == 'county') {
       app.map.removeLayer(muni);
