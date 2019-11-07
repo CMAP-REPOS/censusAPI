@@ -33,7 +33,7 @@
   <!-- Load Esri Leaflet from CDN -->
   <script src="https://unpkg.com/esri-leaflet@2.3.1/dist/esri-leaflet.js" integrity="sha512-Np+ry4Dro5siJ1HZ0hTwn2jsmu/hMNrYw1EIK9EjsEVbDge4AaQhjeTGRg2ispHg7ZgDMVrSDjNrzH/kAO9Law==" crossorigin=""></script>
 
-
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <style>
     .optionsPanel {
       /* position: fixed; */
@@ -43,17 +43,17 @@
     padding-bottom: 200px */
     }
 
-    .field{
-      display:inline-block;
+    .field {
+      display: inline-block;
       text-align: center;
     }
 
-    .inputfile{
+    .inputfile {
       width: 115px
     }
 
-    #inFile{
-      display:inline-block;
+    #inFile {
+      display: inline-block;
       text-align: left;
     }
 
@@ -218,7 +218,7 @@
                 <div class="field">
                   <label class="file-upload">
                     <span><strong>Custom Geography</strong></span>
-                    <input type="file" name="file" id="inFile" class="inputfile"/>
+                    <input type="file" name="file" id="inFile" class="inputfile" />
                   </label>
                 </div>
               </form>
@@ -372,6 +372,47 @@
   <script src="js/main.js"></script>
   <script src="js/censusCall.js"></script>
   <script src="js/censusAPISelection.js"></script>
+
+  <script>
+    //csv Testing
+    var csv = "data/CMAP2010_ratios_BG.csv"
+    //ratioObj = {}
+    csvPromise(csv).then(function(result) {
+      console.log(result)
+    })
+    //console.log(ratioObj)
+    //console.log(ratioObj['170318030121020'])
+
+    function csvPromise(args) {
+      return new Promise(function(resolve, reject) {
+        readCsv(args, function(err, result) {
+          if (!err) {
+            console.log(result)
+            resolve(result);
+            return result
+          } else {
+            reject(err);
+          }
+        });
+      });
+    }
+
+    function readCsv(csv) {
+      var ratioObj = {}
+      d3.csv(csv, function(data) {
+        for (var i = 0; i < 10; i++) {
+          //console.log(data[i].BLOCK)
+          ratioObj[data[i].BLOCK] = {
+            BLKGRP: data[i].BLKGRP,
+            BG_POP_RAT: data[i].BG_POP_RAT,
+            BG_HH_RAT: data[i].BG_HH_RAT,
+            BG_HU_RAT: data[i].BG_HU_RAT
+          }
+        }
+      })
+      return console.log(ratioObj)
+    }
+  </script>
 </body>
 
 </html>
