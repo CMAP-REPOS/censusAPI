@@ -8,7 +8,9 @@ require([
   "esri/InfoTemplate",
   "esri/map",
   "esri/tasks/query",
+  "esri/tasks/QueryTask",
   "esri/geometry/Extent",
+  "esri/geometry/Polygon",
   "esri/request",
   "esri/geometry/scaleUtils",
   "esri/layers/FeatureLayer",
@@ -45,7 +47,9 @@ require([
   InfoTemplate,
   Map,
   Query,
+  QueryTask,
   Extent,
+  Polygon,
   request,
   scaleUtils,
   FeatureLayer,
@@ -121,7 +125,13 @@ require([
     app.initialExtent = app.map.extent;
   })
 
-  var cBlocks;
+  var cBlocks = new FeatureLayer('https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/18', {
+    mode: FeatureLayer.MODE_ONDEMAND,
+    outFields: ["*"]
+  })
+
+  app.map.addLayer(cBlocks)
+
   var featureLayer;
 
   function generateFeatureCollection(fileName) {
@@ -193,7 +203,8 @@ require([
     arrayUtils.forEach(featureCollection.layers, function(layer) {
       var infoTemplate = new InfoTemplate("Details", "${*}");
       featureLayer = new FeatureLayer(layer, {
-        infoTemplate: infoTemplate
+        infoTemplate: infoTemplate,
+        objectIdField: 'OBJECTID'
       });
       //associate the feature with the popup on click to enable highlight and zoom to
       featureLayer.on('click', function(event) {
@@ -208,18 +219,66 @@ require([
     app.map.addLayers(layers);
     app.map.setExtent(fullExtent.expand(1.25), true);
 
-    cBlocks = new FeatureLayer('https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/18', {
+    var county = new FeatureLayer("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Tracts_Blocks/MapServer/12", {
       mode: FeatureLayer.MODE_ONDEMAND,
       outFields: ["*"]
     })
-
-    var county = new FeatureLayer("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2010/MapServer/100", {
-      mode: FeatureLayer.MODE_ONDEMAND,
-      outFields: ["*"]
-    })
-    app.map.addLayer(cBlocks);
+    //;
 
     dom.byId('upload-status').innerHTML = "";
+
+    // When the map is clicked create a buffer around the click point of the specified distance
+    //submitButton = dom.byId("submitButton"),
+    query("#submitButton").on("click", function(evt) {
+
+      var query = new Query();
+      query.geometry = app.map.extent;
+      //query.spatialRelationship = Query.SPATIAL_REL_ENVELOPEINTERSECTS;
+      featureLayer.queryFeatures(query, getSelectGeo)
+    })
+
+    function getSelectGeo(response) {
+
+      var polygon = response.features[0].geometry;
+      // populate the Geometry cache by calling getExtent()
+      var polygonExtent = polygon.getExtent();
+      console.log(response);
+      var query = new Query();
+      query.spatialRelationship = 'esriSpatialRelContains'
+      query.geometry = polygonExtent;
+      console.log(query)
+      cBlocks.queryFeatures(query, collectIDs)
+
+
+      function collectIDs(featureSet) {
+        var inGeo = []
+        var poptotal=0
+        var features = featureSet.features;
+        //console.log(features[0])
+        for (var i = 0; i < features.length; i++) {
+          feature = features[i];
+          if (polygon.contains(feature.geometry.getCentroid())) {
+            inGeo.push(feature.attributes.GEOID);
+            poptotal += feature.attributes.POP100
+
+            r = "<b>The total pop is <i>" + poptotal + "</i>";
+            dom.byId("messages").innerHTML = r;
+          }
+        }
+        //console.log(inGeo)
+      }
+    }
+
+    // var query = new Query();
+    // console.log(featureLayer.polygon)
+    // //query features within extent
+    // query.geometry = featureLayer.polygon;
+    // //query.objectIds = [2]
+    // console.log(query)
+    // // Use a fast bounding box query. It will only go to the server if bounding box is outside of the visible map.
+    // console.log("features select")
+    // //console.log(cBlocks)
+    // cBlocks.queryFeatures(query, selectInBuffer);
   }
 
   function changeRenderer(layer) {
@@ -249,32 +308,14 @@ require([
     }
   }
 
-
-  // When the map is clicked create a buffer around the click point of the specified distance
-  app.map.on("click", function(evt) {
-
-    var query = new Query();
-    query.geometry = featureLayer;
-    console.log(query)
-    // Use a fast bounding box query. It will only go to the server if bounding box is outside of the visible map.
-    console.log("features select")
-    cBlocks.queryFeatures(query, selectInBuffer);
-  });
-
   function selectInBuffer(response) {
     var feature;
+    console.log(cBlocks)
     var features = response.features;
     console.log(features)
     var inBuffer = [];
     // Filter out features that are not actually in buffer, since we got all points in the buffer's bounding box
-    for (var i = 0; i < features.length; i++) {
-      feature = features[i];
-      if (featureLayer.contains(feature.geometry)) {
-        console.log(feature.geometry)
-        inBuffer.push(feature.attributes[cBlocks.objectIdField]);
-      }
-      console.log(inBuffer)
-    }
+
     var query = new Query();
     query.objectIds = inBuffer;
     // Use an objectIds selection query (should not need to go to the server)
@@ -284,15 +325,11 @@ require([
       r = "<b>The total count of Census Blocks is <i>" + blockCount + "</i>.</b>";
       dom.byId("messages").innerHTML = r;
     });
+
+
+
   }
 
-  function sumBlocks(features) {
-          var count = 0;
-          for (var x = 0; x < features.length; x++) {
-            count+=x;
-          }
-          return count;
-        }
 
   //
   // //load census layer
