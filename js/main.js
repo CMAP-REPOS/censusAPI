@@ -255,6 +255,8 @@ require([
         //console.log(features[0])
         for (var i = 0; i < features.length; i++) {
           feature = features[i];
+          //read centroid of block group features and selects
+          //block group if the centroid falls within the custom geography
           if (polygon.contains(feature.geometry.getCentroid())) {
             inGeo.push(feature.attributes.GEOID);
             poptotal += feature.attributes.POP100
@@ -263,12 +265,26 @@ require([
         r = "<b>The total pop is <i>" + poptotal + "</i>";
         dom.byId("messages").innerHTML = r;
 
-        performAllocation(inGeo)
+        var lat = parseFloat(polygon.getCentroid().getLatitude().toFixed(2))
+        var long = parseFloat(polygon.getCentroid().getLongitude().toFixed(2))
+        console.log(lat,long)
+        performAllocation(inGeo,lat,long)
       }
 
-      function performAllocation(inGeo){
+      function performAllocation(inGeo,lat,long){
         //census parameters from Document Object Model dom
         //console.log(inGeo)
+        //get census values json
+        var cDT = document.getElementById("selectCensusDataType");
+        var selCDT = cDT.options[cDT.selectedIndex].value;
+
+        //Selected Census Data Type Value
+        var v = document.getElementById("vintage");
+        var selV = v.options[v.selectedIndex].value;
+
+        //allocation happens in censusCall.js
+        censusBlockGroup(selCDT, selV, lat,long, selectedTables,inGeo)
+        //loop through block list
       }
     }
   }
