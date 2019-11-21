@@ -3,6 +3,24 @@ function json2table(json, classes) {
     //console.log(json.length)
 
     //for(var i=0; i<json)
+
+    jsonTranspose = [];
+
+    for(var i=0;i<json.length;i++){
+      var values = []
+      var obj = new Object();
+      obj['Table Name'] = Object.keys(json[i])
+      Object.keys(json[i]).forEach(function(prop){
+        if(prop != 'NAME'){
+          values.push(json[i][prop])
+        }
+      })
+
+      obj[json[0]['NAME']] = values
+      jsonTranspose.push(obj)
+    }
+
+   console.log(jsonTranspose)
     var allCols = Object.keys(json[0])
 
     var cols=["NAME"];
