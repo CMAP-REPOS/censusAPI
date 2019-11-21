@@ -7,7 +7,7 @@ function json2table(json, classes) {
 
     var cols=["NAME"];
     for(var i=0;i<allCols.length;i++){
-      console.log(allCols[i])
+      //console.log(allCols[i])
       if((allCols[i].endsWith("E")) && allCols[i] != "NAME" ){
         cols.push(allCols[i])
       }
