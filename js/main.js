@@ -283,7 +283,10 @@ require([
         var selV = v.options[v.selectedIndex].value;
 
         //allocation happens in censusCall.js
-        censusBlockGroup(selCDT, selV, lat,long, selectedTables,inGeo)
+        //censusBlockGroup(selCDT, selV, lat,long, selectedTables, true, inGeo)
+  
+        censusTract(selCDT, selV, lat, long, selectedTables, tractcodes = "*", true, inGeo)
+        //censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null)
         //loop through block list
       }
     }

@@ -8,6 +8,7 @@ var availableAPIs = {
 }
 
 
+var availableTagsObj = new Object();
 var availableTags = [];
 var selectedTables = [];
 //list of CDS Tables
@@ -464,6 +465,7 @@ function censusGroups() {
         var isNumeric = /^\d+$/.test(lastChar);
         if (isNumeric == true) {
           availableTags.push(groups["groups"][k]['name'] + "-" + groups["groups"][k]['description'])
+          availableTagsObj[groups["groups"][k]['name']] = groups["groups"][k]['description']
         }
 
       };
@@ -595,7 +597,8 @@ function changeTable(value) {
           terms.pop();
           // add the selected item
           terms.push(ui.item.value);
-          selectedTables.push(splitTableName(ui.item.value)[0])
+          //selectedTables.push(splitTableName(ui.item.value)[0])
+          selectedTables.push(ui.item.value)
           // add placeholder to get the comma-and-space at the end
           terms.push("");
           this.value = terms.join(", ");
@@ -613,12 +616,21 @@ function selectCDSTables() {
 
   if (cdsCheckbox.checked == true) {
     for (var i = 0; i < cdsList.length; i++) {
-      selectedTables.push(cdsList[i])
+      selectedTables.push(cdsList[i] + "-" + availableTagsObj[cdsList[i] ])
     }
   }
 };
 
 function submitSelection() {
+
+  //Remove existing table to replaced with data selection
+  var element = document.getElementsByTagName("Table"),
+    index;
+
+  for (index = element.length - 1; index >= 0; index--) {
+    element[index].parentNode.removeChild(element[index]);
+  }
+
   //var selectedList = [];
   //var tablesSelected = document.getElementById("censusTables").options;
   //Selected Census Data Type Value

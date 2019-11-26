@@ -1,66 +1,58 @@
-function json2table(json, classes) {
+function json2table(json, tableName) {
 
-    //console.log(json.length)
+  //for(var i=0; i<json)
+  console.log(tableName)
+  var allCols = Object.keys(json[0])
+  console.log(allCols[0])
+  //console.log(json)
+  var cols = [tableName];
+  for (var i = 0; i < allCols.length; i++) {
+    //console.log(allCols[i])
+    if (allCols[i] != tableName) {
+      cols.push(allCols[i])
+    }
+  }
+  //console.log(cols)
 
-    //for(var i=0; i<json)
+  var headerRow = '';
+  var bodyRows = '';
 
-    jsonTranspose = [];
+  var classes = classes || '';
 
-    for(var i=0;i<json.length;i++){
-      var values = []
-      var obj = new Object();
-      obj['Table Name'] = Object.keys(json[i])
-      Object.keys(json[i]).forEach(function(prop){
-        if(prop != 'NAME'){
-          values.push(json[i][prop])
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  cols.map(function(col) {
+    headerRow += '<th>' + capitalizeFirstLetter(col) + '</th>';
+  });
+
+  json.map(function(row) {
+    bodyRows += '<tr>';
+
+
+    cols.map(function(colName) {
+      if (colName == tableName) {
+        for (var i = 0; i < row[colName].length; i++) {
+          //console.log(row[colName][i])
+          bodyRows += '<td>' + row[colName][i] + '</td>' + '<td>' + row['Count'][i] + '</td>';
+          bodyRows += '</tr>';
         }
-      })
-
-      obj[json[0]['NAME']] = values
-      jsonTranspose.push(obj)
-    }
-
-   console.log(jsonTranspose)
-    var allCols = Object.keys(json[0])
-
-    var cols=["NAME"];
-    for(var i=0;i<allCols.length;i++){
-      //console.log(allCols[i])
-      if((allCols[i].endsWith("E")) && allCols[i] != "NAME" ){
-        cols.push(allCols[i])
       }
-    }
-    //console.log(cols)
 
-    var headerRow = '';
-    var bodyRows = '';
+      //bodyRows += '<td>' + row[colName] + '</td>';
+      //bodyRows += '</tr>';
+    })
 
-    classes = classes || '';
+    //bodyRows += '</tr>';
+  });
 
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    cols.map(function(col) {
-      headerRow += '<th>' + capitalizeFirstLetter(col) + '</th>';
-    });
-
-    json.map(function(row) {
-      bodyRows += '<tr>';
-
-      cols.map(function(colName) {
-        bodyRows += '<td>' + row[colName] + '</td>';
-      })
-
-      bodyRows += '</tr>';
-    });
-
-    return '<table class="' +
-      classes +
-      '"><thead><tr>' +
-      headerRow +
-      '</tr></thead><tbody>' +
-      bodyRows +
-      '</tbody></table>';
+  return '<table class="' +
+    classes +
+    '"><thead><tr>' +
+    headerRow +
+    '</tr></thead><tbody>' +
+    bodyRows +
+    '</tbody></table>';
 
 }
