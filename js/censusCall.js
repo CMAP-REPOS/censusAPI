@@ -15,16 +15,20 @@ function selectBlockRatio(data, geo, geoRatio, inGeo) {
   return obj
 }
 //push census values to censusObj with GEOID as key (tract)
-function createCensusObj(json) {
+function createCensusObj(json, geo) {
   var obj = new Object()
 
   for (var i = 0; i < json.length; i++) {
     var GEOID;
-    try{
+    if(geo == 'blockGroup') {
       GEOID = json[i]["GEO_ID"].split("US")[1]
+    } if(geo == 'tract') {
+      GEOID = json[i]["state"].concat(json[i]["county"], json[i]["tract"])
+    } if(geo == 'county') {
+      GEOID = json[i]["state"].concat(json[i]["county"])
     }
-    catch{
-      GEOID = json[i]["state"].concat(json[i]["county"],json[i]["tract"])
+    if(geo == 'muni') {
+      GEOID = json[i]["GEO_ID"].split("US")[1]
     }
     //var GEOID = json[i]["GEO_ID"].split("US")[1]
     obj[GEOID] = json[i]
@@ -55,8 +59,8 @@ function censusVariables(tableName, timeOut) {
     var groupVariables = JSON.parse(this.response)
     //console.log(groups)
     if (request.status >= 200 && request.status < 400) {
-      for (groupVar in groupVariables["variables"]){
-        if(groupVar.endsWith("E")){
+      for (groupVar in groupVariables["variables"]) {
+        if (groupVar.endsWith("E")) {
           variableObj[groupVar] = groupVariables["variables"][groupVar]['label']
           //timeOut += 3000
         }
@@ -82,9 +86,56 @@ function censusVariables(tableName, timeOut) {
   });
 };
 
+function transposeUnallocated(json, tableName, tableLabel, censusGeo) {
+  var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
+  var allocatedValues = new Object();
+  var tableValues = new Object();
+  var tableColumns = [];
+  var allocatedObj = []
+  var timeOut = 900;
+  var censusObj;
 
+  console.log(json[0])
+  censusObj = createCensusObj(json, censusGeo)
+  console.log(censusObj)
 
-function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName) {
+  Object.keys(json[0]).forEach(function(censusField) {
+    timeOut += 50
+    if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+      tableColumns.push(censusField)
+    }
+  })
+
+  allocatedValues[tableLabel] = tableColumns
+
+  Object.keys(censusObj).forEach(function(geoID) {
+
+    var cValues = []
+    Object.keys(json[0]).forEach(function(censusField) {
+      if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+        cValues.push(censusObj[geoID][censusField])
+      }
+      //cValues.push(censusObj[geoID][censusField])
+    })
+    allocatedValues[geoID] = cValues
+  })
+
+  allocatedObj.push(allocatedValues)
+  console.log(allocatedObj)
+  console.log(timeOut)
+
+  censusVariables(tableName, timeOut).then(function(varLabels) {
+    document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
+  })
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(allocatedObj);
+    }, 300);
+  });
+}
+
+function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo) {
   //console.log(tableLabel)
   var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
   var allocatedValues = new Object();
@@ -99,7 +150,7 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName)
     //varLabels = censusVariables(tableName)
     ratioObj = selectBlockRatio(data, geo, geoRatio, inGeo)
     //console.log(ratioObj)
-    censusObj = createCensusObj(json)
+    censusObj = createCensusObj(json, censusGeo)
     //console.log(censusObj)
     tableColumns = [];
     //tableData = [];
@@ -137,7 +188,7 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName)
     //  timeOut+=1000
     //}
     console.log(timeOut)
-    censusVariables(tableName, timeOut).then(function(varLabels){
+    censusVariables(tableName, timeOut).then(function(varLabels) {
       document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
     })
     //document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
@@ -150,7 +201,7 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName)
   });
 }
 
-function censusCounty(censusType, vintage, stateCodes, countyCodes, tables) {
+function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, censusGeo='county') {
 
   //Remove existing table to replaced with data selection
   var element = document.getElementsByTagName("Table"),
@@ -214,14 +265,16 @@ function censusCounty(censusType, vintage, stateCodes, countyCodes, tables) {
   }
 
   for (let i = 0; i < tables.length; i++) {
-    getTable(tables[i]).then(function(r) {
-      //console.log(r)
-      document.getElementById('dvData').innerHTML += json2table(r)
-    })
+    let tName = tables[i].split('-')[0]
+    let tLable = tables[i].split('-')[1]
+    getTable(tName).then(function(r) {
+      transposeUnallocated(r, tName, tLable, censusGeo)
+      })
+      //document.getElementById('dvData').innerHTML += json2table(r)
   }
 }
 
-function censusMuni(censusType, vintage, stateCodes, muniCodes, tables) {
+function censusMuni(censusType, vintage, stateCodes, muniCodes, tables, censusGeo='muni') {
 
   //Remove existing table to replaced with data selection
   var element = document.getElementsByTagName("Table"),
@@ -285,13 +338,16 @@ function censusMuni(censusType, vintage, stateCodes, muniCodes, tables) {
   }
 
   for (let i = 0; i < tables.length; i++) {
-    getTable(tables[i]).then(function(r) {
-      document.getElementById('dvData').innerHTML += json2table(r)
-    })
+    let tName = tables[i].split('-')[0]
+    let tLable = tables[i].split('-')[1]
+    getTable(tName).then(function(r) {
+      transposeUnallocated(r, tName, tLable, censusGeo)
+      })
+      //document.getElementById('dvData').innerHTML += json2table(r)
   }
 }
 
-function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null) {
+function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null, censusGeo='tract') {
 
   function censusPromise(args) {
     return new Promise(function(resolve, reject) {
@@ -357,11 +413,10 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
       let tName = tables[i].split('-')[0]
       let tLable = tables[i].split('-')[1]
       getTable(tName).then(function(a) {
-        if(allocate == true){
-          allocCensusData(a, "data/CMAP2010_ratios_TR.csv","TRACT", "TR", inGeo, tLable, tName)
-        }
-        else{
-          document.getElementById('dvData').innerHTML += json2table(a)
+        if (allocate == true) {
+          allocCensusData(a, "data/CMAP2010_ratios_TR.csv", "TRACT", "TR", inGeo, tLable, tName, censusGeo)
+        } else {
+          transposeUnallocated(a, tName, tLable, censusGeo)
         }
       })
     }
@@ -370,7 +425,7 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
   returnCensusTables()
 }
 
-function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*",allocate = false, inGeo = null) {
+function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*", allocate = false, inGeo = null, censusGeo='blockGroup') {
 
   // //Remove existing table to replaced with data selection
   // var element = document.getElementsByTagName("Table"),
@@ -443,11 +498,10 @@ function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*",
     //var arr = []
     for (let i = 0; i < tables.length; i++) {
       getTable(splitTableName(tables[i])[0]).then(function(a) {
-        if(allocate == true){
-          allocCensusData(a, "data/CMAP2010_ratios_BG.csv","BLKGRP", "BG", inGeo, splitTableName(tables[i])[1])
-        }
-        else{
-          document.getElementById('dvData').innerHTML += json2table(a)
+        if (allocate == true) {
+          allocCensusData(a, "data/CMAP2010_ratios_BG.csv", "BLKGRP", "BG", inGeo, tLable, tName, censusGeo)
+        } else {
+          transposeUnallocated(a, tName, tLable, censusGeo)
         }
       })
     }

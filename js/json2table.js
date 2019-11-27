@@ -1,4 +1,3 @@
-
 //var variableObj = new Object();
 
 function json2table(json, varLables, tableLabel) {
@@ -8,7 +7,7 @@ function json2table(json, varLables, tableLabel) {
   var classes = classes || '';
 
   //for(var i=0; i<json)
-  //console.log(tableLabel)
+  console.log(json)
   var allCols = Object.keys(json[0])
   //console.log(allCols[0])
   //console.log(json)
@@ -29,24 +28,36 @@ function json2table(json, varLables, tableLabel) {
   });
 
   json.map(function(row) {
-    bodyRows += '<tr>';
 
-
-    cols.map(function(colName) {
-      if (colName == tableLabel) {
-        for (var i = 0; i < row[colName].length; i++) {
-          console.log(varLables)
-          console.log(row[colName][i])
-          console.log(varLables[row[colName][i]])
+    // cols.map(function(colName) {
+    //   if (colName == tableLabel) {
+    //     for (var i = 0; i < row[colName].length; i++) {
+    //       console.log(varLables)
+    //       console.log(row[colName][i])
+    //       console.log(varLables[row[colName][i]])
+    //       //var rowLabel = varLables[row[colName][i]]
+    //       bodyRows += '<td>' + row[colName][i] + '</td>' + '<td>' + row['Count'][i] + '</td>';
+    //       bodyRows += '</tr>';
+    //     }
+    //   }
+    //
+    //   //bodyRows += '<td>' + row[colName] + '</td>';
+    //   //bodyRows += '</tr>';
+    // })
+    var valueLength = row[tableLabel].length
+    for (var i=0; i<valueLength;i++){
+      bodyRows += '<tr>';
+      cols.map(function(colName) {
+        if (colName == tableLabel){
           var rowLabel = varLables[row[colName][i]]
-          bodyRows += '<td>' + rowLabel + '</td>' + '<td>' + row['Count'][i] + '</td>';
-          bodyRows += '</tr>';
+          bodyRows += '<td>' + rowLabel + '</td>';
         }
-      }
-
-      //bodyRows += '<td>' + row[colName] + '</td>';
-      //bodyRows += '</tr>';
-    })
+        else{
+          bodyRows += '<td>' + row[colName][i] + '</td>';
+        }
+      })
+      bodyRows += '</tr>';
+    }
 
     //bodyRows += '</tr>';
   });
