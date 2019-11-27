@@ -531,17 +531,17 @@ function changeGeo(value) {
 }
 
 //fix sort
-function sortDropdownList(ddl){
+function sortDropdownList(ddl) {
 
-    var options = [].slice.apply(ddl.options, [0]);
-    ddl.innerHTML = "";
-    var sorted = options.sort(function(a,b){
-       return +(a.innerText) - +(b.innerText);
-    });
+  var options = [].slice.apply(ddl.options, [0]);
+  ddl.innerHTML = "";
+  var sorted = options.sort(function(a, b) {
+    return +(a.innerText) - +(b.innerText);
+  });
 
-    for(var i = 0; i < sorted.length; i++){
-      ddl.options.add(sorted[i]);
-    }
+  for (var i = 0; i < sorted.length; i++) {
+    ddl.options.add(sorted[i]);
+  }
 
 }
 
@@ -616,73 +616,81 @@ function selectCDSTables() {
 
   if (cdsCheckbox.checked == true) {
     for (var i = 0; i < cdsList.length; i++) {
-      selectedTables.push(cdsList[i] + "-" + availableTagsObj[cdsList[i] ])
+      //console.log(cdsList[i] + "-" + availableTagsObj[cdsList[i]])
+      selectedTables.push(cdsList[i] + "-" + availableTagsObj[cdsList[i]])
     }
-  }
-};
-
-function submitSelection() {
-
-  //Remove existing table to replaced with data selection
-  var element = document.getElementsByTagName("Table"),
-    index;
-
-  for (index = element.length - 1; index >= 0; index--) {
-    element[index].parentNode.removeChild(element[index]);
-  }
-
-  //var selectedList = [];
-  //var tablesSelected = document.getElementById("censusTables").options;
-  //Selected Census Data Type Value
-  var cDT = document.getElementById("selectCensusDataType");
-  var selCDT = cDT.options[cDT.selectedIndex].value;
-
-  var cGeoType = document.getElementById("selectGeographyType");
-  var selGeoType = cGeoType.options[cGeoType.selectedIndex].value;
-
-
-  var cGeo = document.getElementById("selectGeography").options;
-  var selGeoList = [];
-
-  if (cGeo.length > 0) {
-    for (var i = 0; i < cGeo.length; i++) {
-      if (cGeo[i].selected == true) {
-        selGeoList.push(cGeo[i].value)
-      };
+  } if(cdsCheckbox.checked == false) {
+    selectedTables = selectedTables.filter(function(value, index, arr) {
+        if (!cdsList.includes(value.split("-")[0])) {
+          console.log(value)
+            return value
+          }
+        })
     }
-    //console.log(selGeoList)
+  };
+
+  function submitSelection() {
+
+    //Remove existing table to replaced with data selection
+    var element = document.getElementsByTagName("Table"),
+      index;
+
+    for (index = element.length - 1; index >= 0; index--) {
+      element[index].parentNode.removeChild(element[index]);
+    }
+
+    //var selectedList = [];
+    //var tablesSelected = document.getElementById("censusTables").options;
+    //Selected Census Data Type Value
+    var cDT = document.getElementById("selectCensusDataType");
+    var selCDT = cDT.options[cDT.selectedIndex].value;
+
+    var cGeoType = document.getElementById("selectGeographyType");
+    var selGeoType = cGeoType.options[cGeoType.selectedIndex].value;
+
+
+    var cGeo = document.getElementById("selectGeography").options;
+    var selGeoList = [];
+
+    if (cGeo.length > 0) {
+      for (var i = 0; i < cGeo.length; i++) {
+        if (cGeo[i].selected == true) {
+          selGeoList.push(cGeo[i].value)
+        };
+      }
+      //console.log(selGeoList)
+    }
+
+    //Selected Census Data Type Value
+    var v = document.getElementById("vintage");
+    var selV = v.options[v.selectedIndex].value;
+
+    // if (tablesSelected.length > 0) {
+    //   for (var i = 0; i < tablesSelected.length; i++) {
+    //     if (tablesSelected[i].selected == true) {
+    //       selectedList.push(tablesSelected[i].value)
+    //     };
+    //   }
+    // }
+    //console.log(selectedList)
+    //Submit to collect data
+    //console.log(selectedTables)
+    //censusCounty(selCDT, selV, "17", selGeoList.join(","), ["NAME", "group(" + selectedTables.join(",") + ")"])
+
+    if (selGeoType == 'county') {
+      censusCounty(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+    }
+
+    if (selGeoType == 'muni') {
+      censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+    }
+
+    if (selGeoType == 'tract') {
+      censusTract(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+    }
+
+    if (selGeoType == 'bg') {
+      censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
+    }
+
   }
-
-  //Selected Census Data Type Value
-  var v = document.getElementById("vintage");
-  var selV = v.options[v.selectedIndex].value;
-
-  // if (tablesSelected.length > 0) {
-  //   for (var i = 0; i < tablesSelected.length; i++) {
-  //     if (tablesSelected[i].selected == true) {
-  //       selectedList.push(tablesSelected[i].value)
-  //     };
-  //   }
-  // }
-  //console.log(selectedList)
-  //Submit to collect data
-  //console.log(selectedTables)
-  //censusCounty(selCDT, selV, "17", selGeoList.join(","), ["NAME", "group(" + selectedTables.join(",") + ")"])
-
-  if(selGeoType == 'county'){
-    censusCounty(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
-  }
-
-  if(selGeoType == 'muni'){
-    censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
-  }
-
-  if(selGeoType == 'tract'){
-    censusTract(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
-  }
-
-  if(selGeoType == 'bg'){
-    censusMuni(selCDT, selV, "17", selGeoList.join(","), selectedTables, selGeoType)
-  }
-
-}

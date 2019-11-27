@@ -1,24 +1,25 @@
-function json2table(json, tableName) {
+
+//var variableObj = new Object();
+
+function json2table(json, varLables, tableLabel) {
+
+  var headerRow = '';
+  var bodyRows = '';
+  var classes = classes || '';
 
   //for(var i=0; i<json)
-  console.log(tableName)
+  //console.log(tableLabel)
   var allCols = Object.keys(json[0])
-  console.log(allCols[0])
+  //console.log(allCols[0])
   //console.log(json)
-  var cols = [tableName];
+  var cols = [tableLabel];
   for (var i = 0; i < allCols.length; i++) {
     //console.log(allCols[i])
-    if (allCols[i] != tableName) {
+    if (allCols[i] != tableLabel) {
       cols.push(allCols[i])
     }
   }
   //console.log(cols)
-
-  var headerRow = '';
-  var bodyRows = '';
-
-  var classes = classes || '';
-
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -32,10 +33,13 @@ function json2table(json, tableName) {
 
 
     cols.map(function(colName) {
-      if (colName == tableName) {
+      if (colName == tableLabel) {
         for (var i = 0; i < row[colName].length; i++) {
-          //console.log(row[colName][i])
-          bodyRows += '<td>' + row[colName][i] + '</td>' + '<td>' + row['Count'][i] + '</td>';
+          console.log(varLables)
+          console.log(row[colName][i])
+          console.log(varLables[row[colName][i]])
+          var rowLabel = varLables[row[colName][i]]
+          bodyRows += '<td>' + rowLabel + '</td>' + '<td>' + row['Count'][i] + '</td>';
           bodyRows += '</tr>';
         }
       }
