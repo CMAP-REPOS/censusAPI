@@ -4,7 +4,8 @@ function json2table(json, varLables, tableLabel) {
 
   var headerRow = '';
   var bodyRows = '';
-  var classes = classes || '';
+  var classes = 'table';
+  var tableID;
 
   //for(var i=0; i<json)
   console.log(json)
@@ -44,25 +45,38 @@ function json2table(json, varLables, tableLabel) {
     //   //bodyRows += '<td>' + row[colName] + '</td>';
     //   //bodyRows += '</tr>';
     // })
+
     var valueLength = row[tableLabel].length
+    var footerTrigger = false;
     for (var i=0; i<valueLength;i++){
       bodyRows += '<tr>';
       cols.map(function(colName) {
         if (colName == tableLabel){
+          tableID = row[colName][i].split("_")[0]
           var rowLabel = varLables[row[colName][i]]
+          if(rowLabel == 'Total'){
+            bodyRows += '<tfoot>'
+            footerTrigger = true
+          }
+          else{
+            footerTrigger = false
+          }
           bodyRows += '<td>' + rowLabel + '</td>';
         }
         else{
           bodyRows += '<td>' + row[colName][i] + '</td>';
         }
       })
+      if(footerTrigger == true){
+        bodyRows += '</tfoot>'
+      }
       bodyRows += '</tr>';
     }
 
     //bodyRows += '</tr>';
   });
 
-  return '<table class="' +
+  return '<table id="' + tableID  + '"'+ 'class="' +
     classes +
     '"><thead><tr>' +
     headerRow +

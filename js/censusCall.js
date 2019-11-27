@@ -20,14 +20,16 @@ function createCensusObj(json, geo) {
 
   for (var i = 0; i < json.length; i++) {
     var GEOID;
-    if(geo == 'blockGroup') {
+    if (geo == 'blockGroup') {
       GEOID = json[i]["GEO_ID"].split("US")[1]
-    } if(geo == 'tract') {
+    }
+    if (geo == 'tract') {
       GEOID = json[i]["state"].concat(json[i]["county"], json[i]["tract"])
-    } if(geo == 'county') {
+    }
+    if (geo == 'county') {
       GEOID = json[i]["state"].concat(json[i]["county"])
     }
-    if(geo == 'muni') {
+    if (geo == 'muni') {
       GEOID = json[i]["GEO_ID"].split("US")[1]
     }
     //var GEOID = json[i]["GEO_ID"].split("US")[1]
@@ -61,7 +63,7 @@ function censusVariables(tableName, timeOut) {
     if (request.status >= 200 && request.status < 400) {
       for (groupVar in groupVariables["variables"]) {
         if (groupVar.endsWith("E")) {
-          variableObj[groupVar] = groupVariables["variables"][groupVar]['label']
+          variableObj[groupVar] = groupVariables["variables"][groupVar]['label'].replace("Estimate!!", "").replace("!!", "-").replace("Total-", "").replace("!!", "-")
           //timeOut += 3000
         }
       }
@@ -121,11 +123,20 @@ function transposeUnallocated(json, tableName, tableLabel, censusGeo) {
   })
 
   allocatedObj.push(allocatedValues)
-  console.log(allocatedObj)
-  console.log(timeOut)
+  //console.log(allocatedObj)
+  //console.log(timeOut)
 
   censusVariables(tableName, timeOut).then(function(varLabels) {
-    document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
+    document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel) + "<br>"
+
+    $(document).ready(function() {
+      var table = $('#' + tableName).DataTable({
+        "paging": false,
+        "searching": false
+      });
+
+      table.column("tableLabel").order("asc")
+    });
   })
 
   return new Promise(resolve => {
@@ -201,7 +212,7 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName,
   });
 }
 
-function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, censusGeo='county') {
+function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, censusGeo = 'county') {
 
   //Remove existing table to replaced with data selection
   var element = document.getElementsByTagName("Table"),
@@ -269,12 +280,12 @@ function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, cens
     let tLable = tables[i].split('-')[1]
     getTable(tName).then(function(r) {
       transposeUnallocated(r, tName, tLable, censusGeo)
-      })
-      //document.getElementById('dvData').innerHTML += json2table(r)
+    })
+    //document.getElementById('dvData').innerHTML += json2table(r)
   }
 }
 
-function censusMuni(censusType, vintage, stateCodes, muniCodes, tables, censusGeo='muni') {
+function censusMuni(censusType, vintage, stateCodes, muniCodes, tables, censusGeo = 'muni') {
 
   //Remove existing table to replaced with data selection
   var element = document.getElementsByTagName("Table"),
@@ -342,12 +353,12 @@ function censusMuni(censusType, vintage, stateCodes, muniCodes, tables, censusGe
     let tLable = tables[i].split('-')[1]
     getTable(tName).then(function(r) {
       transposeUnallocated(r, tName, tLable, censusGeo)
-      })
-      //document.getElementById('dvData').innerHTML += json2table(r)
+    })
+    //document.getElementById('dvData').innerHTML += json2table(r)
   }
 }
 
-function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null, censusGeo='tract') {
+function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null, censusGeo = 'tract') {
 
   function censusPromise(args) {
     return new Promise(function(resolve, reject) {
@@ -425,7 +436,7 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
   returnCensusTables()
 }
 
-function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*", allocate = false, inGeo = null, censusGeo='blockGroup') {
+function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*", allocate = false, inGeo = null, censusGeo = 'blockGroup') {
 
   // //Remove existing table to replaced with data selection
   // var element = document.getElementsByTagName("Table"),
