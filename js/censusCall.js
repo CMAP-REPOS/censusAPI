@@ -1,3 +1,17 @@
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function numberWithCommas(x) {
+  if(x==null){
+    return 0
+  }
+  else{
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  //return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 function selectBlockRatio(data, geo, geoRatio, inGeo) {
   var obj = new Object()
   for (var i = 0; i < data.length; i++) {
@@ -88,62 +102,164 @@ function censusVariables(tableName, timeOut) {
   });
 };
 
-function transposeUnallocated(json, tableName, tableLabel, censusGeo) {
-  var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
-  var allocatedValues = new Object();
-  var tableValues = new Object();
-  var tableColumns = [];
-  var allocatedObj = []
-  var timeOut = 900;
-  var censusObj;
+function displayCensusTable(json, tableName, tableLabel, censusGeo) {
 
-  console.log(json[0])
-  censusObj = createCensusObj(json, censusGeo)
-  console.log(censusObj)
+  var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
+  var timeOut = 900;
+  var headerRow = '';
+  var bodyRows = '';
+  var footerRow = '';
+  var numRows = 0;
+
+  //console.log(json[0])
+  console.log(json)
+  headerRow += '<th>' + tableLabel + '</th>'
+  json.forEach(function(a) {
+    headerRow += '<th>' + a["NAME"] + '</th>'
+  })
 
   Object.keys(json[0]).forEach(function(censusField) {
     timeOut += 50
     if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
-      tableColumns.push(censusField)
+      numRows += 1
     }
   })
 
-  allocatedValues[tableLabel] = tableColumns
-
-  Object.keys(censusObj).forEach(function(geoID) {
-
-    var cValues = []
-    Object.keys(json[0]).forEach(function(censusField) {
-      if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
-        cValues.push(censusObj[geoID][censusField])
-      }
-      //cValues.push(censusObj[geoID][censusField])
-    })
-    allocatedValues[geoID] = cValues
-  })
-
-  allocatedObj.push(allocatedValues)
-  //console.log(allocatedObj)
-  //console.log(timeOut)
-
   censusVariables(tableName, timeOut).then(function(varLabels) {
-    document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel) + "<br>"
+    Object.keys(json[0]).forEach(function(censusField) {
+      var rowLabel = varLabels[censusField]
+      //var tempArray = []
+      if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+        if ((varLabels[censusField].includes('Total')) && (numRows > 1)) {
+          footerRow += '<tr><tfoot>'
+          footerRow += '<td>' + rowLabel + '</td>'
+        } else {
+          bodyRows += '<tr>'
+          bodyRows += '<td>' + rowLabel + '</td>'
+        }
+
+        json.forEach(function(array) {
+          //var tempArray = []
+          if ((varLabels[censusField].includes('Total')) && (numRows > 1)) {
+            if (!tableLabel.includes("YEAR STRUCTURE")) {
+              footerRow += '<td>' + numberWithCommas(array[censusField]) + '</td>'
+            } else {
+              footerRow += '<td>' + array[censusField] + '</td>'
+            }
+          } else {
+            if (!tableLabel.includes("YEAR STRUCTURE")) {
+              bodyRows += '<td>' + numberWithCommas(array[censusField]) + '</td>'
+            } else {
+              bodyRows += '<td>' + array[censusField] + '</td>'
+            }
+          }
+        })
+        bodyRows += '</tr>'
+        if ((varLabels[censusField].includes('Total')) && (numRows > 1)) {
+          footerRow += '</tfoot></tr>'
+        }
+      }
+    })
+    //console.log(json)
+    //console.log(valuesArray)
 
     $(document).ready(function() {
-      var table = $('#' + tableName).DataTable({
-        "paging": false,
-        "searching": false
+
+      document.getElementById('dvData').innerHTML += '<table id=' + tableName + ' class="table display" width="100%"><thead><tr>' +
+        headerRow +
+        '</tr></thead><tbody>' +
+        bodyRows +
+        '</tbody>' + footerRow + '</table><br>'
+
+
+      var table =  $('#' + tableName).DataTable({
+        //data: valuesArray,
+        //columns: tableColumns,
+        buttons: [
+          'csv'
+        ],
+        //info: false,
+        paging: false,
+        searching: false,
+        //order: [[ 0, "asc" ]],
+        processing: true,
       });
 
-      table.column("tableLabel").order("asc")
     });
   })
 
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(allocatedObj);
-    }, 300);
-  });
+  //censusObj = createCensusObj(json, censusGeo)
+  //console.log(censusObj)
+  //
+  // Object.keys(json[0]).forEach(function(censusField) {
+  //   timeOut += 50
+  //   var newObj = new Object()
+  //   if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+  //     newObj['title'] = censusField
+  //     //tableColumns.push(censusField)
+  //     tableColumns.push(newObj)
+  //   }
+  // })
+  //
+  // var varLabels = censusVariables(tableName, timeOut)
+  //
+  // allocatedValues[tableLabel] = tableColumns
+  //
+  // Object.keys(censusObj).forEach(function(geoID) {
+  //   var cValues = []
+  //   Object.keys(json[0]).forEach(function(censusField) {
+  //     if (!cValues.includes(censusField)) {
+  //       cValues.push(varLabels[censusField])
+  //     }
+  //     if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+  //       cValues.push(censusObj[geoID][censusField])
+  //     }
+  //     //cValues.push(censusObj[geoID][censusField])
+  //   })
+  //   allocatedValues[geoID] = cValues
+  //   allocatedValuesArray.push(cValues)
+  // })
+  //
+  // allocatedObj.push(allocatedValues)
+  // console.log(allocatedValuesArray)
+  //console.log(tableColumns)
+  //console.log(valuesArray)
+
+  //document.getElementById('dvData').innerHTML += '<table id=' + tableName + ' class="display" width="100%"></table>'
+  //$(document).ready(function() {
+  //  $('#' + tableName).DataTable({
+  //    data: allocatedValuesArray,
+  //    columns: tableColumns
+  //  });
+  //});
+
+  // censusVariables(tableName, timeOut).then(function(varLabels) {
+  //   //document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
+  //   document.getElementById('dvData').innerHTML += '<table id=' + tableName + ' class="display" width="100%"></table>'
+  //   $(document).ready(function() {
+  //     $('#' + tableName).DataTable({
+  //       data: allocatedValuesArray,
+  //       columns: tableColumns
+  //     });
+  //   });
+  //
+  //   // $(document).ready(function() {
+  //   //   var table = $('#' + tableName).DataTable({
+  //   //     "paging": false,
+  //   //     "searching": false,
+  //   //     "order": [[ 0, "asc" ]]
+  //   //   });
+  //   //   //table.column(tableLabel).order("asc")
+  //   // });
+  // })
+
+  // return new Promise(resolve => {
+  //   setTimeout(() => {
+  //     resolve(allocatedObj);
+  //   }, 300);
+  // });
+
+  return
 }
 
 function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo) {
@@ -151,26 +267,19 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName,
   var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
   var allocatedValues = new Object();
   var tableValues = new Object();
-  var allocatedObj = []
+  var tableData = []
   var ratioObj, censusObj;
-  var censusObjKeys = Object.keys(json[1]);
   var timeOut = 900;
 
   d3.csv(csv, function(data) {
 
-    //varLabels = censusVariables(tableName)
     ratioObj = selectBlockRatio(data, geo, geoRatio, inGeo)
-    //console.log(ratioObj)
     censusObj = createCensusObj(json, censusGeo)
-    //console.log(censusObj)
     tableColumns = [];
-    //tableData = [];
     Object.keys(json[1]).forEach(function(censusField) {
       var attr = censusField
       timeOut += 600
       if ((!excludeList.includes(attr)) && attr.endsWith("E")) {
-        //allocatedValues["NAME"] = 'Custom Area';
-        //allocatedValues[censusField] = 0;
         tableValues[censusField] = 0;
         tableColumns.push(attr)
       }
@@ -189,27 +298,11 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName,
       });
     });
     //console.log(tableValues)
-    //tableData.push(Object.values(tableValues))
-    allocatedValues['Count'] = Object.values(tableValues)
-    //console.log(allocatedValues)
-    allocatedObj.push(allocatedValues)
-
-    //timeOut = timeOut * Object.values(tableValues).length
-    //while(timeOut < 5000){
-    //  timeOut+=1000
-    //}
-    console.log(timeOut)
-    censusVariables(tableName, timeOut).then(function(varLabels) {
-      document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
-    })
-    //document.getElementById('dvData').innerHTML += json2table(allocatedObj, varLabels, tableLabel)
+    tableValues["NAME"] = 'Custom Study Area'
+    tableData.push(tableValues)
+    displayCensusTable(tableData, tableName, tableLabel, censusGeo)
   })
-
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(allocatedObj);
-    }, 300);
-  });
+  return
 }
 
 function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, censusGeo = 'county') {
@@ -279,7 +372,7 @@ function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, cens
     let tName = tables[i].split('-')[0]
     let tLable = tables[i].split('-')[1]
     getTable(tName).then(function(r) {
-      transposeUnallocated(r, tName, tLable, censusGeo)
+      displayCensusTable(r, tName, tLable, censusGeo)
     })
     //document.getElementById('dvData').innerHTML += json2table(r)
   }
@@ -352,7 +445,7 @@ function censusMuni(censusType, vintage, stateCodes, muniCodes, tables, censusGe
     let tName = tables[i].split('-')[0]
     let tLable = tables[i].split('-')[1]
     getTable(tName).then(function(r) {
-      transposeUnallocated(r, tName, tLable, censusGeo)
+      displayCensusTable(r, tName, tLable, censusGeo)
     })
     //document.getElementById('dvData').innerHTML += json2table(r)
   }
@@ -410,11 +503,12 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
     }
 
     return censusPromise(censusParams).then(function(json) {
+      console.log(json)
         return json
       })
-      .then(function(json) {
-        return json
-      })
+      // .then(function(json) {
+      //   return json
+      // })
   }
 
   function returnCensusTables() {
@@ -427,7 +521,7 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
         if (allocate == true) {
           allocCensusData(a, "data/CMAP2010_ratios_TR.csv", "TRACT", "TR", inGeo, tLable, tName, censusGeo)
         } else {
-          transposeUnallocated(a, tName, tLable, censusGeo)
+          displayCensusTable(a, tName, tLable, censusGeo)
         }
       })
     }
@@ -512,7 +606,7 @@ function censusBlockGroup(censusType, vintage, lat, long, tables, bgcodes = "*",
         if (allocate == true) {
           allocCensusData(a, "data/CMAP2010_ratios_BG.csv", "BLKGRP", "BG", inGeo, tLable, tName, censusGeo)
         } else {
-          transposeUnallocated(a, tName, tLable, censusGeo)
+          displayCensusTable(a, tName, tLable, censusGeo)
         }
       })
     }

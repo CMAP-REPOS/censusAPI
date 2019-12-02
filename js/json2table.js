@@ -4,7 +4,7 @@ function json2table(json, varLables, tableLabel) {
 
   var headerRow = '';
   var bodyRows = '';
-  var classes = 'table';
+  var classes = 'table dataTable';
   var tableID;
 
   //for(var i=0; i<json)
@@ -82,6 +82,6 @@ function json2table(json, varLables, tableLabel) {
     headerRow +
     '</tr></thead><tbody>' +
     bodyRows +
-    '</tbody></table>';
+    '</tbody></table><br>';
 
 }

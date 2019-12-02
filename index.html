@@ -16,13 +16,13 @@
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
 
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.20/b-1.6.1/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.20/b-1.6.1/datatables.min.js"></script>
+
 
   <!-- Calcite Maps Bootstrap -->
   <link rel="stylesheet" href="dist/css/calcite-maps-bootstrap.min-v0.10.css">
-
   <!-- Calcite Maps -->
   <link rel="stylesheet" href="dist/css/calcite-maps-arcgis-3.x.min-v0.10.css" -->
 
@@ -376,48 +376,6 @@
   <script src="js/censusCall.js"></script>
   <script src="js/censusAPISelection.js"></script>
   <script src="js/main.js"></script>
-
-
-  <script>
-    //csv Testing
-    var csv = "data/CMAP2010_ratios_BG.csv"
-    //ratioObj = {}
-    csvPromise(csv).then(function(result) {
-      console.log(result)
-    })
-    //console.log(ratioObj)
-    //console.log(ratioObj['170318030121020'])
-
-    function csvPromise(args) {
-      return new Promise(function(resolve, reject) {
-        readCsv(args, function(err, result) {
-          if (!err) {
-            console.log(result)
-            resolve(result);
-            return result
-          } else {
-            reject(err);
-          }
-        });
-      });
-    }
-
-    function readCsv(csv) {
-      var ratioObj = {}
-      d3.csv(csv, function(data) {
-        for (var i = 0; i < 10; i++) {
-          //console.log(data[i].BLOCK)
-          ratioObj[data[i].BLOCK] = {
-            BLKGRP: data[i].BLKGRP,
-            BG_POP_RAT: data[i].BG_POP_RAT,
-            BG_HH_RAT: data[i].BG_HH_RAT,
-            BG_HU_RAT: data[i].BG_HU_RAT
-          }
-        }
-      })
-      return console.log(ratioObj)
-    }
-  </script>
 </body>
 
 </html>
