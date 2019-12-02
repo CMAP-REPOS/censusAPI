@@ -262,8 +262,8 @@ require([
             poptotal += feature.attributes.POP100
           }
         }
-        r = "<b>The total pop is <i>" + poptotal + "</i>";
-        dom.byId("messages").innerHTML = r;
+        //r = "<b>The total pop is <i>" + poptotal + "</i>";
+        //dom.byId("messages").innerHTML = r;
 
         var lat = parseFloat(polygon.getCentroid().getLatitude().toFixed(2))
         var long = parseFloat(polygon.getCentroid().getLongitude().toFixed(2))
@@ -284,7 +284,7 @@ require([
 
         //allocation happens in censusCall.js
         //censusBlockGroup(selCDT, selV, lat,long, selectedTables, true, inGeo)
-  
+
         censusTract(selCDT, selV, lat, long, selectedTables, tractcodes = "*", true, inGeo)
         //censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", allocate = false, inGeo = null)
         //loop through block list

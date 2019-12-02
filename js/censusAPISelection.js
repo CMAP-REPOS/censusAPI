@@ -14,7 +14,7 @@ var selectedTables = [];
 //list of CDS Tables
 var cdsList = [
   "B01003",
-  "B01001", //Age
+  //"B01001", //Age
   "B01002", //Med Age
   "B03002", //Race
   "B08301", //Modeshare

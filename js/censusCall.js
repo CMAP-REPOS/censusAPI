@@ -1,12 +1,53 @@
+//Alloction Ratio Universe Selection based on table subject ids: https://www.census.gov/programs-surveys/acs/guidance/which-data-tool/table-ids-explained.html
+var request = new XMLHttpRequest();
+request.open("GET", "data/CMAP2010_ratios_TR.json", false);
+request.send(null)
+var cmap2010ratioTR = JSON.parse(request.responseText);
+//var cmap2010ratioTR = require("data/CMAP2010_ratios_TR.json")
+var universeRatio = {
+  '01': 'POP_RAT', //Age; Sex
+  '02': 'POP_RAT', //Race
+  '03': 'POP_RAT', //Hispanic or Latino Origin
+  '04': 'POP_RAT', //Ancestry
+  '05': 'POP_RAT', //Citizenship Status; Year of Entry; Foreign Born Place of Birth
+  '06': 'POP_RAT', //Place of Birth
+  '07': 'POP_RAT', //Migration/Residence 1 Year Ago
+  '08': 'POP_RAT', //Commuting (Journey to Work); Place of Work
+  '09': 'HH_RAT', //Relationship to Householder
+  '10': 'POP_RAT', //Grandparents and Grandchildren Characteristics
+  '11': 'HH_RAT', //Household Type; Family Type; Subfamilies
+  '12': 'POP_RAT', //Marital Status; Marital History
+  '13': 'POP_RAT', //Fertility
+  '14': 'POP_RAT', //School Enrollment
+  '15': 'POP_RAT', //Educational Attainment; Undergraduate Field of Degree
+  '16': 'POP_RAT', //Language Spoken at Home
+  '17': 'POP_RAT', //Poverty Status
+  '18': 'POP_RAT', //Disability Status
+  '19': 'HH_RAT', //Income
+  '20': 'POP_RAT', //Earnings
+  '21': 'POP_RAT', //Veteran Status; Period of Military Service
+  '22': 'HH_RAT', //Food Stamps/Supplemental Nutrition Assistance Program (SNAP)
+  '23': 'POP_RAT', //Employment Status; Work Status Last Year
+  '24': 'POP_RAT', //Industry, Occupation, and Class of Worker
+  '25': 'HU_RAT', //Housing Characteristics
+  '26': 'POP_RAT', //Group Quarters
+  '27': 'POP_RAT', //Health Insurance Coverage
+  '28': '', //Computer and Internet Use
+  '29': 'POP_RAT', //Citizen Voting-Age Population
+}
+
+//Median Calculation
+//create breaklist from colum values
+//create list of counts by break
+
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function numberWithCommas(x) {
-  if(x==null){
+  if (x == null) {
     return 0
-  }
-  else{
+  } else {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
   //return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -110,25 +151,47 @@ function displayCensusTable(json, tableName, tableLabel, censusGeo) {
   var bodyRows = '';
   var footerRow = '';
   var numRows = 0;
+  var bins = new Object()
 
   //console.log(json[0])
-  console.log(json)
+  //console.log(json)
   headerRow += '<th>' + tableLabel + '</th>'
   json.forEach(function(a) {
     headerRow += '<th>' + a["NAME"] + '</th>'
   })
 
   Object.keys(json[0]).forEach(function(censusField) {
-    timeOut += 50
+    timeOut += 100
     if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
       numRows += 1
     }
   })
 
   censusVariables(tableName, timeOut).then(function(varLabels) {
+
+    // Object.keys(json[0]).forEach(function(censusField) {
+    //   if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
+    //     let rowLabel = varLabels[censusField]
+    //     //console.log(rowLabel)
+    //     //console.log(rowLabel.match(/[0-9]+(?!.*[0-9])/)[0])
+    //     //bins.push(rowLabel.match(/[0-9]+(?!.*[0-9])/)[0])
+    //     let binLabel = rowLabel.match(/[0-9]+(?!.*[0-9])/)[0];
+    //     if(!Object.keys(bins).includes(binLabel)){
+    //       bins[binLabel] = 0;
+    //     }
+    //     json.forEach(function(array) {
+    //       bins[binLabel] += array[censusField]
+    //     })
+    //   }
+    // })
+    //
+    // console.log(bins)
+
+
     Object.keys(json[0]).forEach(function(censusField) {
       var rowLabel = varLabels[censusField]
       //var tempArray = []
+      //console.log(censusField + "-" + varLabels[censusField])
       if ((!excludeList.includes(censusField)) && censusField.endsWith("E")) {
         if ((varLabels[censusField].includes('Total')) && (numRows > 1)) {
           footerRow += '<tr><tfoot>'
@@ -172,7 +235,7 @@ function displayCensusTable(json, tableName, tableLabel, censusGeo) {
         '</tbody>' + footerRow + '</table><br>'
 
 
-      var table =  $('#' + tableName).DataTable({
+      var table = $('#' + tableName).DataTable({
         //data: valuesArray,
         //columns: tableColumns,
         buttons: [
@@ -262,7 +325,20 @@ function displayCensusTable(json, tableName, tableLabel, censusGeo) {
   return
 }
 
-function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo) {
+function allocCensusDataPromise(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo) {
+  return new Promise(function(fulfill, reject) {
+    allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo).then(function(res) {
+      try {
+        //console.log(res)
+        displayCensusTable(res, tableName, tableLabel, censusGeo);
+      } catch (ex) {
+        reject(ex);
+      }
+    }, reject);
+  });
+}
+
+function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName, censusGeo, medianAlloc) {
   //console.log(tableLabel)
   var excludeList = ["block-group", "tract", "county", "state", "GEO_ID", "NAME"]
   var allocatedValues = new Object();
@@ -270,39 +346,56 @@ function allocCensusData(json, csv, geo, geoRatio, inGeo, tableLabel, tableName,
   var tableData = []
   var ratioObj, censusObj;
   var timeOut = 900;
+  var tableSubjectCode = tableName.charAt(1) + tableName.charAt(2)
+  var bins = []
+  var feq = []
+  //var
 
-  d3.csv(csv, function(data) {
+  //  var data = d3.csv(csv, function(data) {
+  //    return data
+  //  })
 
-    ratioObj = selectBlockRatio(data, geo, geoRatio, inGeo)
-    censusObj = createCensusObj(json, censusGeo)
-    tableColumns = [];
-    Object.keys(json[1]).forEach(function(censusField) {
-      var attr = censusField
-      timeOut += 600
-      if ((!excludeList.includes(attr)) && attr.endsWith("E")) {
-        tableValues[censusField] = 0;
-        tableColumns.push(attr)
-      }
-    })
+  var data = cmap2010ratioTR
+  ratioObj = selectBlockRatio(data, geo, geoRatio, inGeo)
+  censusObj = createCensusObj(json, censusGeo)
+  //console.log(data)
 
-    allocatedValues[tableLabel] = tableColumns
 
-    Object.keys(ratioObj).forEach(function(block) {
-      Object.keys(json[1]).forEach(function(censusField) {
-        //attr = list includes list of geographic attributes to exclude from allocation
-        if ((!excludeList.includes(censusField)) && censusField.endsWith("E") && !isNaN(censusObj[ratioObj[block]["GEO"]][censusField])) {
-          //add correct ratio application based on table name
-          tableValues[censusField] += Math.round(parseFloat(censusObj[ratioObj[block]["GEO"]][censusField]) * parseFloat(ratioObj[block]["POP_RAT"]))
-          //allocSum += Math.round(parseFloat(censusObj[ratioObj[block]["BLKGRP"]][censusField]) * parseFloat(ratioObj[block]["BG_POP_RAT"]))
-        }
-      });
-    });
-    //console.log(tableValues)
-    tableValues["NAME"] = 'Custom Study Area'
-    tableData.push(tableValues)
-    displayCensusTable(tableData, tableName, tableLabel, censusGeo)
+  tableColumns = [];
+  Object.keys(json[1]).forEach(function(censusField) {
+    var attr = censusField
+    timeOut += 100
+    if ((!excludeList.includes(attr)) && attr.endsWith("E")) {
+      tableValues[censusField] = 0;
+      tableColumns.push(attr)
+    }
   })
-  return
+
+  allocatedValues[tableLabel] = tableColumns
+
+  Object.keys(ratioObj).forEach(function(block) {
+    Object.keys(json[1]).forEach(function(censusField) {
+      //attr = list includes list of geographic attributes to exclude from allocation
+      if ((!excludeList.includes(censusField)) && censusField.endsWith("E") && !isNaN(censusObj[ratioObj[block]["GEO"]][censusField])) {
+        //add correct ratio application based on table name
+        tableValues[censusField] += Math.round(parseFloat(censusObj[ratioObj[block]["GEO"]][censusField]) * parseFloat(ratioObj[block][universeRatio[tableSubjectCode]]))
+        //allocSum += Math.round(parseFloat(censusObj[ratioObj[block]["BLKGRP"]][censusField]) * parseFloat(ratioObj[block]["BG_POP_RAT"]))
+      }
+    });
+  });
+  //console.log(tableValues)
+  tableValues["NAME"] = 'Custom Study Area'
+  tableData.push(tableValues)
+  return new Promise(function(resolve, reject) {
+    // A mock async action using setTimeout
+    setTimeout(function() {
+      resolve(tableData);
+    }, timeOut);
+  });
+  //displayCensusTable(tableData, tableName, tableLabel, censusGeo)
+  //setTimeout(function(){ displayCensusTable(tableData, tableName, tableLabel, censusGeo); }, timeOut)
+  //})
+
 }
 
 function censusCounty(censusType, vintage, stateCodes, countyCodes, tables, censusGeo = 'county') {
@@ -503,13 +596,17 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
     }
 
     return censusPromise(censusParams).then(function(json) {
-      console.log(json)
-        return json
-      })
-      // .then(function(json) {
-      //   return json
-      // })
+      //console.log(json)
+      return json
+    })
+    // .then(function(json) {
+    //   return json
+    // })
   }
+
+  var medianTables = [{"B01002":"B01001"}]
+  var mTableNames = Object.keys(medianTables[0])
+  var medianAlloc = false
 
   function returnCensusTables() {
     //var arr = []
@@ -517,9 +614,16 @@ function censusTract(censusType, vintage, lat, long, tables, tractcodes = "*", a
       //console.log(tables[i])
       let tName = tables[i].split('-')[0]
       let tLable = tables[i].split('-')[1]
+      if ((allocate == true) && (mTableNames.includes(tName))){
+        tName = medianTables[0][tName]
+        medianAlloc = true
+      }
+      else{
+        medianAlloc = false
+      }
       getTable(tName).then(function(a) {
         if (allocate == true) {
-          allocCensusData(a, "data/CMAP2010_ratios_TR.csv", "TRACT", "TR", inGeo, tLable, tName, censusGeo)
+          allocCensusDataPromise(a, "data/CMAP2010_ratios_TR.csv", "TRACT", "TR", inGeo, tLable, tName, censusGeo, medianAlloc);
         } else {
           displayCensusTable(a, tName, tLable, censusGeo)
         }
